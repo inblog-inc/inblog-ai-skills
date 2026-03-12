@@ -1,0 +1,33 @@
+{
+  "name": "@inblog/ai-skills",
+  "version": "0.1.3",
+  "description": "Set up inblog AI skills for your coding tools",
+  "bin": {
+    "@inblog/ai-skills": "./dist/bin/setup.js",
+    "inblog-ai-skills": "./dist/bin/setup.js"
+  },
+  "files": [
+    "dist",
+    "content"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.0.0",
+    "chalk": "^5.0.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
