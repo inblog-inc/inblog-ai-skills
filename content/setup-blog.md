@@ -24,12 +24,18 @@ npm install -g @inblog/cli
 ### Step 2: 인증
 
 ```bash
-# 미인증 시
-inblog auth login
-
 # 인증 상태 확인
 inblog auth status
+
+# 미인증 시 — 블로그가 1개면 자동 선택됨
+inblog auth login
+
+# 여러 블로그 보유 시 — --blog 옵션으로 대화형 프롬프트 없이 선택
+inblog auth login --blog <id 또는 subdomain>
 ```
+
+> **AI 에이전트 참고**: `inblog auth login`은 대화형 블로그 선택 프롬프트가 포함됨.
+> AI 환경에서는 반드시 `--blog` 옵션을 사용하거나, 로그인 후 `inblog blogs switch <id>` 로 블로그를 지정할 것.
 
 ### Step 2-A: 블로그 전환 (여러 블로그 보유 시)
 
@@ -37,12 +43,9 @@ inblog auth status
 # 보유 블로그 목록 확인
 inblog blogs list
 
-# 블로그 전환 (ID 또는 subdomain)
+# 블로그 전환 (ID 또는 subdomain) — 비대화형
 inblog blogs switch 123
 inblog blogs switch my-subdomain
-
-# 대화형 선택
-inblog blogs switch
 ```
 
 ### Step 3: 블로그 상태 파싱

@@ -16,9 +16,10 @@ Base URL: `https://inblog.ai/api/v1`
 
 ### CLI 사용
 ```bash
-inblog auth login          # API 키 입력 → 검증 → 저장
-inblog auth whoami --json  # 현재 인증 상태 확인
-inblog auth logout         # API 키 제거
+inblog auth login                      # OAuth 로그인 (대화형 블로그 선택)
+inblog auth login --blog my-subdomain  # OAuth 로그인 + 블로그 지정 (비대화형)
+inblog auth status --json              # 현재 인증 상태 확인
+inblog auth logout                     # 세션 제거
 ```
 
 ### 키 우선순위

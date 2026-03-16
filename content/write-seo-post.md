@@ -8,7 +8,8 @@ description: "SEO 블로그 포스트 작성 & 발행. 트리거: '블로그 글
 ## 전제 조건
 
 - `inblog auth status`로 인증/블로그 확인
-- 여러 블로그 보유 시: `inblog blogs list` → `inblog blogs switch <id 또는 subdomain>`
+- 미인증 시: `inblog auth login --blog <id 또는 subdomain>` (대화형 프롬프트 회피)
+- 여러 블로그 보유 시: `inblog blogs list --json` → `inblog blogs switch <id 또는 subdomain>`
 - Team 플랜 이상 필요 (무료 플랜 시 업그레이드 안내)
 
 ## 워크플로우
