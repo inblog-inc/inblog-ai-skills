@@ -1,138 +1,170 @@
 ---
 name: inblog-write-seo-post
-description: "SEO 블로그 포스트 작성 & 발행. 트리거: '블로그 글 써줘', '포스트 작성', '글 발행'"
+description: "Write and publish SEO blog posts. Triggers: '블로그 글 써줘', '포스트 작성', '글 발행', 'write post', 'publish post'"
 ---
 
-# SEO 블로그 포스트 작성 워크플로우
+# SEO Blog Post Writing Workflow
 
-## 전제 조건
+## Prerequisites
 
-- `inblog auth status`로 인증/블로그 확인
-- 미인증 시: `inblog auth login --blog <id 또는 subdomain>` (대화형 프롬프트 회피)
-- 여러 블로그 보유 시: `inblog blogs list --json` → `inblog blogs switch <id 또는 subdomain>`
-- Team 플랜 이상 필요 (무료 플랜 시 업그레이드 안내)
+- Verify auth/blog with `inblog auth status`
+- If not authenticated: `inblog auth login --blog <id or subdomain>` (avoids interactive prompt)
+- Multiple blogs: `inblog blogs list --json` → `inblog blogs switch <id or subdomain>`
+- Requires Team plan or higher (free plan → guide to upgrade)
 
-## 워크플로우
+## Workflow
 
-### Phase 1: 정보 수집 (멀티턴)
+### Phase 1: Information Gathering (multi-turn)
 
-유저에게 순서대로 확인:
+This phase is **adaptive** — skip any step the user has already provided.
+If the user says "write a post about X", go straight to outline with X as the topic.
 
-1. **주제** — 무엇에 대해 쓸 것인가
-2. **목적** — 어떤 전환을 원하는가 (signup, demo, newsletter, purchase, contact)
-3. **타겟 독자** — 누구를 위한 글인가
-4. **글 유형** — 튜토리얼/가이드, 리스트형, 문제해결, 케이스스터디
-5. **키워드** — SEO 목표 키워드 (유저가 모르면 주제에서 추출)
+Confirm with user in order:
 
-### Phase 1-A: 애널리틱스 연동 모드 (선택)
+1. **Topic** — what to write about (skip if user already specified)
+2. **Purpose** — what conversion is desired (signup, demo, newsletter, purchase, contact)
+3. **Target audience** — who will read this (skip if obvious from context)
+4. **Post type** — tutorial/guide, listicle, problem-solving, case study
+5. **Keyword** — SEO target keyword (if user doesn't know, extract from topic)
 
-유저가 "성과 좋은 주제로 글 써줘", "트래픽 기반으로" 같은 요청 시:
+### Optional: Context Layers
+
+Silently read and apply whatever exists — don't ask about things these files already define.
 
 ```bash
-# 상위 포스트 분석
+# Only if needed:
+inblog blogs me --json  # → subdomain
+
+# Layer 1 — Blog strategy (voice, persona, CTA style)
+# Read .inblog/{subdomain}/strategy.md
+
+# Layer 2 — Business profile (product features, CTA mapping)
+# Read .inblog/{subdomain}/business.md
+# → When writing about a topic, check if a product feature is relevant
+# → If yes, weave in naturally (not forced) with appropriate CTA
+
+# Layer 3 — Author profile (expertise, experience, style)
+# Read .inblog/{subdomain}/authors/{author-id}.md
+# → Use author's real experiences for first-person references
+# → Match writing style to author's preferences
+
+# Layer 4 — Content plan + enrichment notes
+# Read .inblog/{subdomain}/plans/*.md (latest)
+# → If user hasn't specified a topic, offer planned topics
+# → If writing a planned topic, use its enrichment notes (internal data, case studies)
+```
+
+**Key principle:** All layers are *defaults that auto-apply*, not *gates that block*. The user can always override with their own topic, voice, or audience. Skills degrade gracefully when files are missing.
+
+### Phase 1-A: Analytics-Driven Mode (optional)
+
+When user requests "write about a high-performing topic" or "data-driven":
+
+```bash
+# Top posts analysis
 inblog analytics posts --sort visits --limit 5 --include title --json
 
-# 트래픽 키워드 분석 (서치콘솔 연결 필요)
+# Traffic keywords (requires Search Console)
 inblog search-console keywords --sort clicks --limit 10 --json
 ```
 
-- 기존 성과 데이터 기반 주제/키워드 제안
-- 유저 선택 후 일반 Phase 2로 진행
+- Suggest topics/keywords based on existing performance data
+- After user selects, continue to Phase 2
 
-### Phase 2: 아웃라인 & 콘텐츠 생성
+### Phase 2: Outline & Content Generation
 
-1. SEO 최적화 아웃라인 작성 (H2/H3 구조)
-2. 유저 확인 후 HTML 콘텐츠 생성
-3. **반드시 `inblog-content-html` 스킬의 규칙을 따를 것**
+1. Write SEO-optimized outline (H2/H3 structure)
+2. Confirm with user, then generate HTML content
+3. **Must follow `inblog-content-html` skill rules**
 
-#### SEO 최적화 가이드
+#### SEO Optimization Guide
 
-| 요소 | 규칙 |
-|------|------|
-| title | 60자 이내, 키워드 앞쪽 배치 |
-| meta_description | 150-160자, 키워드 포함, 행동 유도 |
-| slug | 영문 소문자, 하이픈 구분, 키워드 포함 |
-| H2/H3 | 키워드 자연스럽게 포함 |
-| 본문 | 1500자 이상, 키워드 밀도 1-2% |
-| CTA | 글 중간과 끝에 배치 |
+| Element | Rules |
+|---------|-------|
+| title | Under 60 chars, keyword near front |
+| meta_description | 150-160 chars, include keyword, call to action |
+| slug | Lowercase English, hyphen-separated, include keyword |
+| H2/H3 | Include keywords naturally |
+| Body | 1500+ chars minimum, keyword density 1-2% |
+| CTA | Place mid-body and at end |
 
-#### 콘텐츠 구조 템플릿
+#### Content Structure Templates
 
-**튜토리얼/가이드:**
-- 도입 (문제 제기) → 단계별 설명 → 팁/주의사항 → CTA
+**Tutorial/Guide:**
+- Introduction (problem statement) → Step-by-step → Tips/caveats → CTA
 
-**리스트형:**
-- 도입 → N개 항목 (각각 H2) → 요약 → CTA
+**Listicle:**
+- Introduction → N items (each with H2) → Summary → CTA
 
-**문제해결:**
-- 문제 상황 → 원인 분석 → 해결 방법 → CTA
+**Problem-Solving:**
+- Problem scenario → Root cause → Solutions → CTA
 
-**케이스스터디:**
-- 배경 → 과제 → 해결 과정 → 결과/수치 → CTA
+**Case Study:**
+- Background → Challenge → Process → Results/metrics → CTA
 
-### Phase 3: API 호출
+### Phase 3: API Calls
 
 ```bash
-# 1. 태그 확인/생성
+# 1. Check/create tags
 inblog tags list
-inblog tags create --name "키워드" --slug "keyword"
+inblog tags create --name "keyword" --slug "keyword"
 
-# 2. 저자 확인
+# 2. Check authors
 inblog authors list
 
-# 3. 포스트 생성 (--image로 커버 이미지 설정, 로컬 파일 자동 업로드)
+# 3. Create post (--image for cover image, local files auto-upload)
 inblog posts create \
-  --title "SEO 최적화된 제목" \
+  --title "SEO Optimized Title" \
   --slug "seo-optimized-slug" \
-  --description "150-160자 메타 설명" \
-  --meta-title "60자 이내 메타 타이틀" \
-  --meta-description "150-160자 메타 설명" \
+  --description "150-160 char meta description" \
+  --meta-title "Under 60 char meta title" \
+  --meta-description "150-160 char meta description" \
   --image ./cover.jpg \
   --content-file ./content.html \
   --json
 
-# 4. 태그/저자 연결
+# 4. Connect tags/authors
 inblog posts add-tags <post-id> --tag-ids <id1>,<id2>
 inblog posts add-authors <post-id> --author-ids <id1>
 
-# 5. 발행 (유저 선택에 따라)
-inblog posts publish <post-id>                    # 즉시 발행
-inblog posts schedule <post-id> --at "2026-03-10T09:00:00Z"    # 예약
-# 또는 드래프트 유지 (아무것도 하지 않음)
+# 5. Publish (based on user choice)
+inblog posts publish <post-id>                              # Immediate
+inblog posts schedule <post-id> --at "2026-03-10T09:00:00Z" # Scheduled
+# Or keep as draft (do nothing)
 ```
 
-### Phase 4: 완료 확인
+### Phase 4: Completion
 
-발행 후 링크 제공:
+After publishing, provide links:
 
-- **에디터:** `https://inblog.ai/dashboard/{subdomain}/{postId}`
-- **공개 URL:** `https://{subdomain}.inblog.io/{slug}`
-- 커스텀 도메인이 있으면: `https://{custom_domain}/{slug}`
+- **Editor:** `https://inblog.ai/dashboard/{subdomain}/{postId}`
+- **Public URL:** `https://{subdomain}.inblog.io/{slug}`
+- With custom domain: `https://{custom_domain}/{slug}`
 
-## 이미지 처리
+## Image Handling
 
-이미지 확보 시 `inblog-image-sourcing` 스킬을 참조하여 상황에 맞는 방법 선택.
+Refer to `inblog-image-sourcing` skill for image sourcing approach.
 
 ```bash
-# 커버 이미지 설정 (로컬 파일 또는 URL)
-inblog posts create --title "제목" --image ./cover.jpg --content-file ./content.html
+# Cover image (local file or URL)
+inblog posts create --title "Title" --image ./cover.jpg --content-file ./content.html
 inblog posts update <id> --image https://source.inblog.dev/...
 
-# 로컬 이미지 먼저 업로드
+# Upload local images first
 inblog images upload ./photo1.jpg ./photo2.jpg
-# → CDN URL 반환, content_html에 사용
+# → Returns CDN URLs for use in content_html
 
-# content_html 내 로컬 경로/base64 이미지는 자동 CDN 업로드
-# (--content-file 제출 시 자동 처리, 413 에러 방지)
+# Local paths/base64 in content_html are auto-uploaded to CDN
+# (handled automatically with --content-file, prevents 413 errors)
 ```
 
-**주의:** content_html에 base64 이미지를 직접 넣으면 413 에러. 반드시 로컬 파일 경로를 사용하거나 `inblog images upload`로 먼저 CDN URL을 확보할 것.
+**Warning:** Embedding base64 directly in content_html causes 413 errors. Always use local file paths or upload via `inblog images upload` first.
 
-## 에러 처리
+## Error Handling
 
-| 에러 코드 | 해결 |
-|-----------|------|
-| SLUG_CONFLICT | 슬러그 변경 |
-| SUBSCRIPTION_REQUIRED | Team 플랜 업그레이드 |
-| VALIDATION_ERROR | 필수 필드 확인 |
-| INVALID_TAG_IDS | `inblog tags list`로 ID 확인 |
+| Error Code | Resolution |
+|-----------|-----------|
+| SLUG_CONFLICT | Change the slug |
+| SUBSCRIPTION_REQUIRED | Upgrade to Team plan |
+| VALIDATION_ERROR | Check required fields |
+| INVALID_TAG_IDS | Verify with `inblog tags list` |

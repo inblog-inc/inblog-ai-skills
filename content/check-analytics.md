@@ -1,114 +1,115 @@
 ---
 name: inblog-check-analytics
-description: "트래픽, 키워드, SEO 분석, 성과 기반 인사이트. 트리거: '트래픽 확인', '키워드 분석', '성과 확인', 'SEO 분석', '성과 좋은 글'"
+description: "Traffic, keyword, and SEO analysis with performance insights. Triggers: '트래픽 확인', '키워드 분석', '성과 확인', 'SEO 분석', 'check analytics', 'keyword analysis'"
 ---
 
-# 트래픽 & SEO 분석 워크플로우
+# Traffic & SEO Analysis Workflow
 
-## 전제 조건
+## Prerequisites
 
-- `inblog auth status`로 인증/블로그 확인
-- 미인증 시: `inblog auth login --blog <id 또는 subdomain>` (대화형 프롬프트 회피)
-- 여러 블로그 보유 시: `inblog blogs list --json` → `inblog blogs switch <id 또는 subdomain>`
-- Team 플랜 이상 필요
-- 키워드 분석: Google Search Console 연결 필요 (`inblog search-console status`)
+- Verify auth/blog with `inblog auth status`
+- If not authenticated: `inblog auth login --blog <id or subdomain>`
+- Multiple blogs: `inblog blogs list --json` → `inblog blogs switch <id or subdomain>`
+- Requires Team plan or higher
+- Keyword analysis: Google Search Console connection required (`inblog search-console status`)
 
-## 유저 인텐트별 워크플로우
+## Workflows by User Intent
 
-### "전체 트래픽 확인"
+### "Check overall traffic"
 
 ```bash
-# 일별 트래픽 추이
+# Daily traffic trends
 inblog analytics traffic --interval day --json
 
-# 유입 소스 분석
+# Referrer source analysis
 inblog analytics sources --json
 ```
 
-분석 포인트:
-- 일별 트렌드 (증가/감소 추세, 피크 날짜)
-- 방문, 클릭, 오가닉 비율
-- 주요 유입 소스 (직접, 검색, 소셜, 리퍼럴)
+Analysis points:
+- Daily trends (increase/decrease, peak dates)
+- Visits, clicks, organic ratio
+- Top referrer sources (direct, search, social, referral)
 
-### "성과 좋은 글 분석"
+### "Analyze top-performing posts"
 
 ```bash
-# 상위 포스트 (방문수 기준)
+# Top posts by visits
 inblog analytics posts --sort visits --limit 10 --include title --json
 ```
 
-분석 포인트:
-- 상위 포스트 테이블 (제목, 방문, 클릭, CVR)
-- CVR이 낮은 글 → CTA 추가/개선 제안
-- 클릭 대비 방문이 낮은 글 → meta_description 개선 제안
+Analysis points:
+- Top posts table (title, visits, clicks, CVR)
+- Low CVR posts → suggest adding/improving CTA
+- Low visits-to-clicks ratio → suggest improving meta_description
 
-개별 포스트 심층 분석:
+Deep-dive on individual posts:
 ```bash
-# 특정 포스트의 시계열 트래픽
+# Time-series traffic for specific post
 inblog analytics post <id> --interval day --json
 
-# 특정 포스트의 유입 소스
+# Referrer sources for specific post
 inblog analytics post <id> --sources --json
 ```
 
-### "키워드 분석" (서치콘솔 필요)
+### "Keyword analysis" (requires Search Console)
 
 ```bash
-# 서치콘솔 연결 확인
+# Check Search Console connection
 inblog search-console status
 
-# 미연결 시
+# If not connected
 inblog search-console connect
 
-# 키워드 성과
+# Keyword performance
 inblog search-console keywords --sort clicks --json
 
-# 페이지별 성과
+# Page performance
 inblog search-console pages --sort clicks --json
 ```
 
-분석 포인트:
-- 키워드별 clicks, impressions, CTR, position 테이블
-- **기회 키워드 발굴:** impressions 높고 position > 10인 키워드 → 새 글 주제 제안
-- **개선 대상:** CTR 낮고 position < 10인 키워드 → 기존 글 meta_description 개선
-- **위닝 키워드:** position 1-3, CTR 높은 키워드 → 추가 콘텐츠 확장
+Analysis points:
+- Keyword table: clicks, impressions, CTR, position
+- **Opportunity keywords:** High impressions + position > 10 → suggest new post topics
+- **Improvement targets:** Low CTR + position < 10 → improve existing meta_description
+- **Winning keywords:** Position 1-3, high CTR → expand with additional content
 
-### "특정 포스트 성과"
+### "Specific post performance"
 
 ```bash
-# 포스트 시계열 트래픽
+# Post time-series traffic
 inblog analytics post <id> --json
 
-# 포스트 유입 소스
+# Post referrer sources
 inblog analytics post <id> --sources --json
 ```
 
-분석 포인트:
-- 시간대별/일별 트래픽 패턴
-- 유입 소스 분포
-- 개선 포인트 제안
+Analysis points:
+- Hourly/daily traffic patterns
+- Referrer source distribution
+- Improvement suggestions
 
-## 애널리틱스 → 액션 연결
+## Analytics → Action Connections
 
-분석 결과에서 다음 액션으로 자연스럽게 연결:
+Naturally connect analysis results to next actions:
 
-| 인사이트 | 제안 액션 | 연결 스킬 |
-|----------|----------|----------|
-| 기회 키워드 발견 | "이 키워드로 새 글을 작성할까요?" | `inblog-write-seo-post` |
-| CTR 낮은 글 | "meta_description을 개선할까요?" | `inblog-manage-posts` |
-| CVR 낮은 글 | "CTA를 추가할까요?" | `inblog-manage-posts` |
-| 성과 좋은 주제 | "비슷한 주제로 추가 글을 작성할까요?" | `inblog-write-seo-post` |
-| 서치콘솔 미연결 | "서치콘솔을 연결할까요?" | `inblog-setup-blog` |
+| Insight | Suggested Action | Connected Skill |
+|---------|-----------------|----------------|
+| Opportunity keyword found | "Write a new post targeting this keyword?" | `inblog-write-seo-post` |
+| Low CTR post | "Improve the meta_description?" | `inblog-manage-posts` |
+| Low CVR post | "Add a CTA?" | `inblog-manage-posts` |
+| High-performing topic | "Write a follow-up on this topic?" | `inblog-write-seo-post` |
+| Content gaps identified | "Update your content plan?" | `inblog-content-plan` |
+| Search Console not connected | "Connect Search Console?" | `inblog-setup-blog` |
 
-## 날짜 범위
+## Date Ranges
 
-- 기본: 최근 28일
-- 커스텀: `--start-date YYYY-MM-DD --end-date YYYY-MM-DD`
-- 서치콘솔 데이터는 2-3일 지연이 있을 수 있음
+- Default: last 28 days
+- Custom: `--start-date YYYY-MM-DD --end-date YYYY-MM-DD`
+- Search Console data may have 2-3 day delay
 
-## 정렬/필터
+## Sorting/Filtering
 
-- 트래픽: `--interval day|hour`, `--type all|home|post|category|author`
-- 포스트: `--sort visits|clicks|organic|cvr`, `--order asc|desc`
-- 키워드: `--sort clicks|impressions|ctr|position`
-- 공통: `--limit N` (기본 20)
+- Traffic: `--interval day|hour`, `--type all|home|post|category|author`
+- Posts: `--sort visits|clicks|organic|cvr`, `--order asc|desc`
+- Keywords: `--sort clicks|impressions|ctr|position`
+- Common: `--limit N` (default 20)

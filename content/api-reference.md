@@ -1,256 +1,256 @@
 ---
 name: inblog-api-reference
-description: "inblog API 완벽 레퍼런스. 엔드포인트, 필드, 필터, 에러 코드 상세."
+description: "Complete inblog API reference. Endpoints, fields, filters, error codes. Triggers: 'API 레퍼런스', 'API reference'"
 ---
 
-# inblog API 레퍼런스
+# inblog API Reference
 
 Base URL: `https://inblog.ai/api/v1`
 
-## 인증
+## Authentication
 
-모든 요청에 `Authorization: Bearer <API_KEY>` 헤더 필요.
-- GET 요청: `Accept: application/vnd.api+json`만 전송
-- POST/PATCH 요청: `Content-Type: application/json` + `Accept: application/vnd.api+json`
-- 유료 플랜 블로그만 API 접근 가능
+All requests require `Authorization: Bearer <API_KEY>` header.
+- GET requests: Send only `Accept: application/vnd.api+json`
+- POST/PATCH requests: `Content-Type: application/json` + `Accept: application/vnd.api+json`
+- Paid plan blogs only have API access
 
-### CLI 사용
+### CLI Usage
 ```bash
-inblog auth login                      # OAuth 로그인 (대화형 블로그 선택)
-inblog auth login --blog my-subdomain  # OAuth 로그인 + 블로그 지정 (비대화형)
-inblog auth status --json              # 현재 인증 상태 확인
-inblog auth logout                     # 세션 제거
+inblog auth login                      # OAuth login (interactive blog selection)
+inblog auth login --blog my-subdomain  # OAuth login + specify blog (non-interactive)
+inblog auth status --json              # Check current auth status
+inblog auth logout                     # Remove session
 ```
 
-### 키 우선순위
-1. `--api-key` 플래그
-2. `INBLOG_API_KEY` 환경변수
-3. `.inblogrc.json` (프로젝트 로컬)
-4. `~/.config/inblog/config.json` (글로벌)
+### Key Priority
+1. `--api-key` flag
+2. `INBLOG_API_KEY` environment variable
+3. `.inblogrc.json` (project-local)
+4. `~/.config/inblog/config.json` (global)
 
-## 권한 범위 (Scopes)
+## Permission Scopes
 
-| Scope | 설명 |
-|-------|------|
-| `posts:read` | 포스트 조회 |
-| `posts:write` | 포스트 생성/수정/발행 |
-| `posts:delete` | 포스트 삭제 |
-| `tags:read` | 태그 조회 |
-| `tags:write` | 태그 생성/수정 |
-| `tags:delete` | 태그 삭제 |
-| `authors:read` | 저자 조회 |
-| `authors:write` | 저자 수정 |
-| `blogs:read` | 블로그 정보 조회 |
-| `blogs:write` | 블로그 설정 수정 |
-| `redirects:read` | 리다이렉트 조회 |
-| `redirects:write` | 리다이렉트 생성/수정/삭제 |
-| `forms:read` | 폼 조회 |
-| `form_responses:read` | 폼 응답 조회 |
+| Scope | Description |
+|-------|-------------|
+| `posts:read` | Read posts |
+| `posts:write` | Create/update/publish posts |
+| `posts:delete` | Delete posts |
+| `tags:read` | Read tags |
+| `tags:write` | Create/update tags |
+| `tags:delete` | Delete tags |
+| `authors:read` | Read authors |
+| `authors:write` | Update authors |
+| `blogs:read` | Read blog info |
+| `blogs:write` | Update blog settings |
+| `redirects:read` | Read redirects |
+| `redirects:write` | Create/update/delete redirects |
+| `forms:read` | Read forms |
+| `form_responses:read` | Read form responses |
 
 ---
 
-## 엔드포인트 상세
+## Endpoint Details
 
-### 포스트
+### Posts
 
 ```bash
-# 목록 (페이지네이션 + 필터 + 정렬)
+# List (pagination + filter + sort)
 inblog posts list --page 1 --limit 10 --sort published_at --order desc --include tags,authors --json
 inblog posts list --published --tag-id 5 --json
 inblog posts list --draft --author-id "uuid" --json
 
-# 조회
+# Get single
 inblog posts get <id> --include tags,authors --json
 
-# 생성 (--image로 커버 이미지 설정, 로컬 파일 자동 업로드)
-inblog posts create --title "제목" --slug "slug" --image ./cover.jpg --content-file /tmp/content.html --json
+# Create (--image for cover image, local files auto-upload)
+inblog posts create --title "Title" --slug "slug" --image ./cover.jpg --content-file /tmp/content.html --json
 
-# 수정
-inblog posts update <id> --title "새 제목" --image ./new-cover.jpg --json
+# Update
+inblog posts update <id> --title "New Title" --image ./new-cover.jpg --json
 
-# 삭제
+# Delete
 inblog posts delete <id> --json
 
-# 발행/취소/예약
+# Publish/Unpublish/Schedule
 inblog posts publish <id> --json
 inblog posts unpublish <id> --json
 inblog posts schedule <id> --at "2025-03-15T09:00:00+09:00" --json
 ```
 
-**목록 필터 파라미터:**
+**List Filter Parameters:**
 
-| 파라미터 | 타입 | 설명 |
-|---------|------|------|
-| `--page` | number | 페이지 번호 (기본: 1) |
-| `--limit` | number | 페이지당 항목 (기본: 10, 최대: 100) |
-| `--sort` | string | 정렬 필드: `published_at`, `created_at`, `updated_at`, `title` |
-| `--order` | string | `asc` 또는 `desc` (기본: desc) |
-| `--published` | flag | 발행된 포스트만 |
-| `--draft` | flag | 초안만 |
-| `--tag-id` | number | 특정 태그 ID로 필터 |
-| `--author-id` | string | 특정 저자 ID(UUID)로 필터 |
-| `--include` | string | 관계 포함: `tags`, `authors`, `tags,authors` |
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `--page` | number | Page number (default: 1) |
+| `--limit` | number | Items per page (default: 10, max: 100) |
+| `--sort` | string | Sort field: `published_at`, `created_at`, `updated_at`, `title` |
+| `--order` | string | `asc` or `desc` (default: desc) |
+| `--published` | flag | Published posts only |
+| `--draft` | flag | Drafts only |
+| `--tag-id` | number | Filter by specific tag ID |
+| `--author-id` | string | Filter by specific author ID (UUID) |
+| `--include` | string | Include relationships: `tags`, `authors`, `tags,authors` |
 
-**포스트 필드:**
+**Post Fields:**
 
-| 필드 | 타입 | 필수 | 설명 |
-|------|------|------|------|
-| `title` | string | ✓ | 포스트 제목 (60자 이내 권장) |
-| `slug` | string | ✓ | URL 슬러그 (소문자, 숫자, 하이픈만) |
-| `description` | string | | 포스트 요약 |
-| `content_html` | string | | 본문 HTML (inblog-content-html 참조) |
-| `content_type` | string | | `"tiptap"` (기본) 또는 `"notion"` |
-| `published` | boolean | | 발행 상태 |
-| `published_at` | ISO 8601 | | 발행 시간 |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | string | Yes | Post title (under 60 chars recommended) |
+| `slug` | string | Yes | URL slug (lowercase, numbers, hyphens only) |
+| `description` | string | | Post summary |
+| `content_html` | string | | Body HTML (see inblog-content-html) |
+| `content_type` | string | | `"tiptap"` (default) or `"notion"` |
+| `published` | boolean | | Publication status |
+| `published_at` | ISO 8601 | | Publication time |
 | `image` | object | | `{ url, blurhash?, created_at? }` |
-| `canonical_url` | string | | 정규 URL (다른 곳에 원본 있을 때) |
-| `notion_url` | string | | Notion 페이지 URL |
-| `meta_title` | string | | SEO 제목 (og:title 용) |
-| `meta_description` | string | | SEO 설명 (150-160자 권장) |
-| `cta_text` | string | | CTA 버튼 텍스트 |
-| `cta_link` | string | | CTA 클릭 시 URL |
-| `cta_color` | string | | CTA 버튼 색상 (hex) |
-| `cta_text_color` | string | | CTA 텍스트 색상 (hex) |
+| `canonical_url` | string | | Canonical URL (when original exists elsewhere) |
+| `notion_url` | string | | Notion page URL |
+| `meta_title` | string | | SEO title (for og:title) |
+| `meta_description` | string | | SEO description (150-160 chars recommended) |
+| `cta_text` | string | | CTA button text |
+| `cta_link` | string | | CTA click URL |
+| `cta_color` | string | | CTA button color (hex) |
+| `cta_text_color` | string | | CTA text color (hex) |
 | `custom_scripts` | object | | `{ head_start_script, head_end_script, body_start_script, body_end_script, json_ld_script }` |
-| `tag_ids` | number[] | | 생성 시 태그 연결 |
-| `author_ids` | string[] | | 생성 시 저자 연결 |
+| `tag_ids` | number[] | | Connect tags on creation |
+| `author_ids` | string[] | | Connect authors on creation |
 
-**ID 타입**: 포스트 ID는 정수 (string으로 반환)
+**ID Type**: Post ID is integer (returned as string)
 
-### 포스트-태그 관계
+### Post-Tag Relationships
 
 ```bash
-inblog posts tags <postId> --json          # 포스트의 태그 목록
-inblog posts add-tags <postId> --tag-ids 1,2,3 --json  # 태그 추가
-inblog posts remove-tag <postId> <tagId> --json        # 태그 제거
+inblog posts tags <postId> --json                        # List post's tags
+inblog posts add-tags <postId> --tag-ids 1,2,3 --json    # Add tags
+inblog posts remove-tag <postId> <tagId> --json          # Remove tag
 ```
 
-### 포스트-저자 관계
+### Post-Author Relationships
 
 ```bash
-inblog posts authors <postId> --json       # 포스트의 저자 목록
-inblog posts add-authors <postId> --author-ids uuid1,uuid2 --json  # 저자 추가
-inblog posts remove-author <postId> <authorId> --json              # 저자 제거
+inblog posts authors <postId> --json                              # List post's authors
+inblog posts add-authors <postId> --author-ids uuid1,uuid2 --json # Add authors
+inblog posts remove-author <postId> <authorId> --json             # Remove author
 ```
 
-### 태그
+### Tags
 
 ```bash
-inblog tags list --json       # 전체 (페이지네이션 없음, priority 순)
+inblog tags list --json       # All tags (no pagination, sorted by priority)
 inblog tags get <id> --json
-inblog tags create --name "태그명" --slug "tag-slug" --priority 0 --json
-inblog tags update <id> --name "새이름" --json
+inblog tags create --name "Tag Name" --slug "tag-slug" --priority 0 --json
+inblog tags update <id> --name "New Name" --json
 inblog tags delete <id> --json
 ```
 
-**태그 필드:**
+**Tag Fields:**
 
-| 필드 | DB 필드 | 설명 |
-|------|--------|------|
-| `name` | `title` | 태그 이름 (API에서 name으로 노출) |
-| `slug` | `slug` | URL 슬러그 |
-| `priority` | `priority` | 정렬 우선순위 (낮을수록 먼저) |
+| Field | DB Field | Description |
+|-------|----------|-------------|
+| `name` | `title` | Tag name (exposed as name in API) |
+| `slug` | `slug` | URL slug |
+| `priority` | `priority` | Sort priority (lower = first) |
 
-**ID 타입**: 정수 (string으로 반환)
+**ID Type**: Integer (returned as string)
 
-### 저자
+### Authors
 
 ```bash
 inblog authors list --page 1 --limit 10 --json
 inblog authors get <id> --json
-inblog authors update <id> --name "새 이름" --avatar-url "https://..." --json
+inblog authors update <id> --name "New Name" --avatar-url "https://..." --json
 ```
 
-**주의사항:**
-- `create` 미구현 (서버에서 `NOT_IMPLEMENTED` 반환)
-- 블로그에 포스트가 있는 프로필만 반환
-- 시스템 저자(HelloInblogID)는 자동 필터링
-- **ID 타입**: UUID
+**Notes:**
+- `create` not implemented (server returns `NOT_IMPLEMENTED`)
+- Only returns profiles that have posts in the blog
+- System authors (HelloInblogID) are auto-filtered
+- **ID Type**: UUID
 
-### 블로그
+### Blogs
 
 ```bash
-inblog blogs me --json         # 내 블로그 정보
-inblog blogs list              # 접근 가능한 블로그 목록 (OAuth)
-inblog blogs switch [id]       # 블로그 전환 (ID 또는 subdomain, 생략 시 대화형)
-inblog blogs update --title "새 블로그명" --language "ko" --json
+inblog blogs me --json         # My blog info
+inblog blogs list              # List accessible blogs (OAuth)
+inblog blogs switch [id]       # Switch blog (ID or subdomain, interactive if omitted)
+inblog blogs update --title "New Blog Name" --language "ko" --json
 inblog blogs update --logo ./logo.png --favicon ./favicon.ico --og-image ./og.jpg --json
 inblog blogs update --ga-id <id> --json
 ```
 
-**블로그 필드:**
+**Blog Fields:**
 
-| 필드 | 설명 |
-|------|------|
-| `id` | 블로그 ID (정수) |
-| `title` | 블로그 이름 |
-| `subdomain` | 서브도메인 (ID로도 사용) |
-| `description` | 블로그 설명 |
-| `custom_domain` | 커스텀 도메인 |
-| `custom_domain_verified` | 도메인 검증 상태 |
-| `blog_language` | 블로그 언어 (ko, en 등) |
-| `timezone_diff` | 타임존 오프셋 (시간) |
-| `plan` | 요금제 |
-| `logo_url` | 로고 URL |
-| `favicon` | 파비콘 URL |
-| `og_image` | 기본 OG 이미지 URL |
-| `ga_measurement_id` | Google Analytics 측정 ID |
-| `is_search_console_connected` | 서치콘솔 연결 상태 |
-| `search_console_url` | 서치콘솔 사이트 URL |
+| Field | Description |
+|-------|-------------|
+| `id` | Blog ID (integer) |
+| `title` | Blog name |
+| `subdomain` | Subdomain (also used as ID) |
+| `description` | Blog description |
+| `custom_domain` | Custom domain |
+| `custom_domain_verified` | Domain verification status |
+| `blog_language` | Blog language (ko, en, etc.) |
+| `timezone_diff` | Timezone offset (hours) |
+| `plan` | Pricing plan |
+| `logo_url` | Logo URL |
+| `favicon` | Favicon URL |
+| `og_image` | Default OG image URL |
+| `ga_measurement_id` | Google Analytics measurement ID |
+| `is_search_console_connected` | Search Console connection status |
+| `search_console_url` | Search Console site URL |
 
-### 커스텀 도메인
+### Custom Domain
 
 ```bash
-inblog blogs domain connect <domain>   # 도메인 연결 + DNS 레코드 안내
-inblog blogs domain status             # 도메인 검증 상태 확인
-inblog blogs domain disconnect         # 도메인 연결 해제
+inblog blogs domain connect <domain>   # Connect domain + DNS record guide
+inblog blogs domain status             # Check domain verification status
+inblog blogs domain disconnect         # Disconnect domain
 ```
 
-### 배너
+### Banner
 
 ```bash
-inblog blogs banner get                # 현재 배너 설정 확인
+inblog blogs banner get                # Check current banner settings
 inblog blogs banner set --image ./banner.png --title <text> --subtext <text> --title-color <hex> --bg-color <hex>
-inblog blogs banner remove             # 배너 제거
+inblog blogs banner remove             # Remove banner
 ```
 
-### 서치콘솔
+### Search Console
 
 ```bash
-inblog search-console connect          # Google Search Console OAuth 연결
-inblog search-console status           # 연결 상태 확인
-inblog search-console disconnect       # 연결 해제
+inblog search-console connect          # Google Search Console OAuth connection
+inblog search-console status           # Check connection status
+inblog search-console disconnect       # Disconnect
 inblog search-console keywords --start-date 2026-02-01 --end-date 2026-03-01 --sort clicks --limit 20 --json
 inblog search-console pages --start-date 2026-02-01 --end-date 2026-03-01 --sort clicks --limit 20 --json
 ```
 
-**키워드/페이지 정렬:** `clicks`, `impressions`, `ctr`, `position`
+**Keyword/Page Sort:** `clicks`, `impressions`, `ctr`, `position`
 
-### 트래픽 분석
+### Traffic Analytics
 
 ```bash
-# 블로그 전체 트래픽
+# Blog overall traffic
 inblog analytics traffic --interval day --type all --json
 
-# 포스트별 성과
+# Post-level performance
 inblog analytics posts --sort visits --order desc --limit 20 --include title --json
 
-# 유입 소스
+# Referrer sources
 inblog analytics sources --limit 20 --json
 
-# 개별 포스트 트래픽
+# Individual post traffic
 inblog analytics post <id> --interval day --json
 
-# 개별 포스트 유입 소스
+# Individual post referrer sources
 inblog analytics post <id> --sources --json
 ```
 
-**날짜 기본값:** `--start-date` 28일 전, `--end-date` 오늘
-**트래픽 정렬:** `visits`, `clicks`, `organic`, `cvr`
-**인터벌:** `day` (기본), `hour`
-**타입 필터:** `all`, `home`, `post`, `category`, `author`
+**Date defaults:** `--start-date` 28 days ago, `--end-date` today
+**Traffic sort:** `visits`, `clicks`, `organic`, `cvr`
+**Interval:** `day` (default), `hour`
+**Type filter:** `all`, `home`, `post`, `category`, `author`
 
-### 리다이렉트
+### Redirects
 
 ```bash
 inblog redirects list --page 1 --limit 50 --json
@@ -260,19 +260,19 @@ inblog redirects update <id> --to "/newer-path" --json
 inblog redirects delete <id> --json
 ```
 
-- `redirect_type`: `307` (임시) 또는 `308` (영구, 기본값)
-- 경로는 자동 정규화 (앞에 `/` 추가 등)
-- `from_path` 중복 시 `REDIRECT_PATH_CONFLICT` (409)
-- **ID 타입**: UUID
+- `redirect_type`: `307` (temporary) or `308` (permanent, default)
+- Paths are auto-normalized (leading `/` added, etc.)
+- Duplicate `from_path` returns `REDIRECT_PATH_CONFLICT` (409)
+- **ID Type**: UUID
 
-### 폼
+### Forms
 
 ```bash
 inblog forms list --page 1 --limit 10 --json
 inblog forms get <id> --json
 ```
 
-### 폼 응답
+### Form Responses
 
 ```bash
 inblog form-responses list --form-id <id> --page 1 --limit 10 --json
@@ -281,9 +281,9 @@ inblog form-responses get <id> --json
 
 ---
 
-## 응답 형식 (JSON:API)
+## Response Format (JSON:API)
 
-### 단일 리소스
+### Single Resource
 ```json
 {
   "jsonapi": { "version": "1.0" },
@@ -298,7 +298,7 @@ inblog form-responses get <id> --json
 }
 ```
 
-### 컬렉션
+### Collection
 ```json
 {
   "jsonapi": { "version": "1.0" },
@@ -308,8 +308,8 @@ inblog form-responses get <id> --json
 }
 ```
 
-### CLI `--json` 출력
-CLI는 JSON:API를 flat object로 변환하여 출력합니다:
+### CLI `--json` Output
+CLI converts JSON:API to flat objects:
 ```json
 {
   "data": [
@@ -321,69 +321,69 @@ CLI는 JSON:API를 flat object로 변환하여 출력합니다:
 
 ---
 
-## 이미지 처리
+## Image Handling
 
-### CLI 이미지 업로드
+### CLI Image Upload
 
 ```bash
-# 이미지 파일을 CDN에 업로드 → URL 반환
+# Upload image files to CDN → returns URL
 inblog images upload ./photo1.jpg ./photo2.png
 inblog images upload ./cover.jpg -b featured_image --json
 
-# 포스트 생성/수정 시 로컬 파일 직접 지정 (자동 업로드)
-inblog posts create --title "제목" --image ./cover.jpg --content-file ./content.html
+# Direct local file in post create/update (auto-upload)
+inblog posts create --title "Title" --image ./cover.jpg --content-file ./content.html
 inblog posts update <id> --image ./new-cover.jpg
 
-# 블로그 로고/파비콘/OG도 로컬 파일 지원
+# Blog logo/favicon/OG also support local files
 inblog blogs update --logo ./logo.png --favicon ./favicon.ico --og-image ./og.jpg
-inblog blogs banner set --image ./banner.png --title "제목"
+inblog blogs banner set --image ./banner.png --title "Title"
 ```
 
-**주의:** `content_html`에 base64 data URI를 직접 넣으면 413 에러 발생.
-- `--content-file` 사용 시: 로컬 경로/base64 → 자동 CDN 업로드 처리
-- 수동 HTML 작성 시: `inblog images upload`로 먼저 URL 확보 후 사용
+**Warning:** Embedding base64 data URIs directly in `content_html` causes 413 errors.
+- With `--content-file`: local paths/base64 → auto CDN upload
+- Manual HTML: upload via `inblog images upload` first, then use returned URL
 
-### API 이미지 처리 규칙
+### API Image Processing Rules
 
-1. **외부 URL** → 기본적으로 inblog R2 스토리지에 자동 업로드
-2. **Base64** (`data:image/...;base64,...`) → 항상 R2에 업로드 (최대 10MB)
-3. **inblog CDN** (`source.inblog.dev`, `image.inblog.dev`) → 그대로 유지
-4. `preserve_external_images=true` → 외부 URL 원본 유지
+1. **External URL** → auto-uploaded to inblog R2 storage by default
+2. **Base64** (`data:image/...;base64,...`) → always uploaded to R2 (max 10MB)
+3. **inblog CDN** (`source.inblog.dev`, `image.inblog.dev`) → kept as-is
+4. `preserve_external_images=true` → keep original external URLs
 
-`content_html` 내 이미지도 동일 규칙 적용 (JSDOM으로 파싱 후 처리).
+Images within `content_html` follow the same rules (parsed via JSDOM).
 
 ---
 
-## 에러 코드 전체
+## Error Codes
 
-| HTTP | 코드 | 의미 | 대응 |
-|------|------|------|------|
-| 400 | `VALIDATION_ERROR` | 필수 필드 누락/형식 오류 | 요청 확인 |
-| 400 | `INVALID_SLUG` | slug 형식 오류 | 소문자+숫자+하이픈만 |
-| 400 | `INVALID_DATE` | ISO 8601 날짜 형식 오류 | 날짜 형식 수정 |
-| 400 | `PAST_SCHEDULED_DATE` | 예약 날짜가 과거 | 미래 날짜 사용 |
-| 400 | `INVALID_TAG_IDS` | 존재하지 않는 태그 ID | 태그 목록 확인 |
-| 400 | `INVALID_AUTHOR_IDS` | 블로그 멤버 아닌 저자 | 저자 목록 확인 |
-| 400 | `INVALID_NOTION_URL` | Notion URL 형식 오류 | notion.so 도메인 확인 |
-| 401 | `UNAUTHORIZED` | 인증 헤더 누락/잘못됨 | API 키 확인 |
-| 401 | `INVALID_TOKEN` | API 키 유효하지 않음 | 새 키 발급 |
-| 403 | `SUBSCRIPTION_REQUIRED` | 무료 플랜 블로그 | 유료 플랜 업그레이드 |
-| 403 | `BLOG_MISMATCH` | 다른 블로그의 리소스 접근 | 본인 블로그 리소스만 |
-| 404 | `POST_NOT_FOUND` | 포스트 없음 | ID 확인 |
-| 404 | `TAG_NOT_FOUND` | 태그 없음 | ID 확인 |
-| 404 | `NOTION_PAGE_NOT_FOUND` | Notion 페이지 접근 불가 | 페이지 공유 설정 확인 |
-| 405 | `METHOD_NOT_ALLOWED` | HTTP 메서드 미지원 | 엔드포인트 확인 |
-| 409 | `SLUG_CONFLICT` | slug 중복 | 다른 slug 사용 |
-| 409 | `TAG_NAME_CONFLICT` | 태그 이름 중복 | 다른 이름 사용 |
-| 409 | `REDIRECT_PATH_CONFLICT` | 리다이렉트 경로 중복 | 다른 경로 사용 |
-| 500 | `INTERNAL_ERROR` | 서버 에러 | 재시도 |
-| 501 | `NOT_IMPLEMENTED` | 미구현 기능 | 다른 방법 사용 |
-| 502 | `NOTION_FETCH_FAILED` | Notion 서비스 장애 | 재시도 |
+| HTTP | Code | Meaning | Resolution |
+|------|------|---------|-----------|
+| 400 | `VALIDATION_ERROR` | Missing required fields / format error | Check request |
+| 400 | `INVALID_SLUG` | Invalid slug format | Use lowercase + numbers + hyphens only |
+| 400 | `INVALID_DATE` | ISO 8601 date format error | Fix date format |
+| 400 | `PAST_SCHEDULED_DATE` | Schedule date is in the past | Use a future date |
+| 400 | `INVALID_TAG_IDS` | Non-existent tag IDs | Check tag list |
+| 400 | `INVALID_AUTHOR_IDS` | Author not a blog member | Check author list |
+| 400 | `INVALID_NOTION_URL` | Invalid Notion URL format | Must be notion.so domain |
+| 401 | `UNAUTHORIZED` | Missing/invalid auth header | Check API key |
+| 401 | `INVALID_TOKEN` | API key is invalid | Issue new key |
+| 403 | `SUBSCRIPTION_REQUIRED` | Free plan blog | Upgrade to paid plan |
+| 403 | `BLOG_MISMATCH` | Accessing another blog's resource | Use own blog resources only |
+| 404 | `POST_NOT_FOUND` | Post not found | Check ID |
+| 404 | `TAG_NOT_FOUND` | Tag not found | Check ID |
+| 404 | `NOTION_PAGE_NOT_FOUND` | Cannot access Notion page | Check page sharing settings |
+| 405 | `METHOD_NOT_ALLOWED` | HTTP method not supported | Check endpoint |
+| 409 | `SLUG_CONFLICT` | Duplicate slug | Use a different slug |
+| 409 | `TAG_NAME_CONFLICT` | Duplicate tag name | Use a different name |
+| 409 | `REDIRECT_PATH_CONFLICT` | Duplicate redirect path | Use a different path |
+| 500 | `INTERNAL_ERROR` | Server error | Retry |
+| 501 | `NOT_IMPLEMENTED` | Unimplemented feature | Use alternative method |
+| 502 | `NOTION_FETCH_FAILED` | Notion service issue | Retry |
 
-## 종료 코드 (CLI)
+## CLI Exit Codes
 
-| 코드 | 의미 |
-|------|------|
-| 0 | 성공 |
-| 1 | 사용자 에러 (인증 실패, 잘못된 입력 등) |
-| 2 | API 에러 (서버 반환 에러) |
+| Code | Meaning |
+|------|---------|
+| 0 | Success |
+| 1 | User error (auth failure, invalid input, etc.) |
+| 2 | API error (server-returned error) |

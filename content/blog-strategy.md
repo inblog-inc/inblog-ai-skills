@@ -1,0 +1,239 @@
+---
+name: inblog-blog-strategy
+description: "Blog strategy definition and persona mapping. Triggers: '블로그 전략', '콘텐츠 전략', '블로그 목적', '타겟 독자 설정', 'blog strategy', 'content strategy'"
+---
+
+# Blog Strategy Definition
+
+Define the blog's business purpose, target personas, content pillars, brand voice, and conversion goals. Produces `.inblog/{subdomain}/strategy.md` that all other skills reference.
+
+**User-invocable:** `/blog-strategy` or `/blog-strategy refresh`
+
+## Prerequisites
+
+```bash
+# Verify authentication
+inblog auth whoami --json
+```
+
+## Blog Resolution
+
+```bash
+# 1. Detect active blog
+inblog blogs me --json
+# → Extract "subdomain" field from response
+
+# 2. Blog directory
+# blogDir = .inblog/{subdomain}/
+# If it doesn't exist, create it + plans/ subdirectory
+
+# 3. Read/write files relative to blogDir
+```
+
+## Multi-Turn Workflow
+
+### Phase 1 — Discovery
+
+First, determine which track to follow by scanning existing content.
+
+Check cache first: `.inblog/{subdomain}/cache/posts.json` (TTL 7 days).
+If cache is valid, use it. Otherwise fetch and cache:
+
+```bash
+# Fetch ALL published posts (paginate until exhausted)
+# Page 1:
+inblog posts list --published --limit 100 --page 1 --include tags --json
+# → If meta.hasNext is true, continue:
+inblog posts list --published --limit 100 --page 2 --include tags --json
+# → Repeat until hasNext is false
+# → Merge all pages, save to .inblog/{subdomain}/cache/posts.json
+```
+
+---
+
+**Track A: Scan-first (5+ published posts exist)**
+
+When there is enough existing content to infer strategy from:
+
+1. Scan published posts — titles, tags, topics, writing style, tone
+2. If analytics available, pull performance data:
+   ```bash
+   inblog analytics posts --sort visits --limit 20 --include title --json
+   ```
+3. If DataForSEO configured (`.inblog/config.json`), pull our domain's SEO profile:
+   ```
+   POST https://api.dataforseo.com/v3/dataforseo_labs/google/domain_rank_overview/live
+   → Our organic traffic estimate, keyword count, domain strength
+   ```
+4. Check `.inblog/assets/` for brand guidelines or reference docs
+5. **Draft a strategy based on what you observe:**
+   - Infer content pillars from tag clusters and topic patterns
+   - Infer target persona from the topics and depth level
+   - Infer brand voice from writing style (formal/casual, technical depth, etc.)
+   - Infer blog goal from CTA patterns, post types, funnel coverage
+6. Present the inferred strategy to the user for review
+7. Ask focused follow-up questions only for what can't be inferred:
+   - "I see your posts focus on X and Y — are these your main content pillars, or are there areas you want to expand into?"
+   - "Your tone reads as [professional/casual] — is that intentional?"
+   - "What's the primary conversion goal? I see [newsletter CTAs / demo links / ...]"
+   - "Who are 2-3 content competitors you're aware of?"
+
+---
+
+**Track B: Interview (fewer than 5 posts or new blog)**
+
+Gather through natural conversation. Ask 2-3 questions at a time, not all at once.
+
+**1. Business basics**
+- What does the company/product do?
+- Who are the customers?
+
+**2. Blog goal** (pick primary + secondary)
+| Goal | Description |
+|------|-------------|
+| Lead generation | Drive signups, demo requests |
+| Brand awareness | Establish thought leadership |
+| Product education | Help users succeed with product |
+| Thought leadership | Share unique industry perspectives |
+| SEO traffic | Capture search demand |
+
+**3. Target personas** (define 2-3)
+For each persona:
+| Field | Example |
+|-------|---------|
+| Role | "Engineering manager at Series B startup" |
+| Pain points | "Hiring is slow, CI/CD is broken, team morale is low" |
+| Search behavior | "Googles specific error messages, reads HN, follows tech blogs" |
+| What convinces them | "Real-world case studies, benchmarks, code examples" |
+
+**4. Content pillars** (3-5 core topic areas)
+These are the blog's expertise domains. Every post should map to a pillar.
+Example: `[Engineering Culture, DevOps Best Practices, Product Updates, Industry Analysis]`
+
+**5. Brand voice**
+| Attribute | Options |
+|-----------|---------|
+| Tone | Professional / Casual / Friendly / Authoritative |
+| Formality | Formal / Semi-formal / Informal |
+| Do's | "Use real examples", "Include code snippets" |
+| Don'ts | "Don't use jargon without explanation", "No clickbait" |
+
+**6. Conversion action**
+Primary CTA: signup / demo / newsletter / contact / purchase
+How aggressive: Soft mention / Dedicated CTA section / Multiple CTAs
+
+**7. Competitive landscape**
+- Who are 2-3 content competitors? (get their domain names)
+- What do they do well?
+- How will this blog differentiate?
+
+If DataForSEO is configured (`.inblog/config.json` → `dataforseo`), enrich competitor analysis:
+```
+# For each competitor domain, pull data:
+POST https://api.dataforseo.com/v3/dataforseo_labs/google/domain_rank_overview/live
+→ Domain authority, organic traffic estimate, top keywords count
+
+POST https://api.dataforseo.com/v3/dataforseo_labs/google/ranked_keywords/live
+→ What keywords they rank for (top 50), their positions
+```
+This gives concrete data: "Competitor X gets ~50k organic visits/month, ranks for 1,200 keywords, strongest in [topic area]" — much better than guessing.
+
+**8. Check for existing assets**
+- Look in `.inblog/assets/` for brand guidelines, style guides, or reference docs
+- If found, incorporate into strategy
+
+---
+
+### Phase 2 — Strategy Synthesis
+
+Generate a structured strategy document with:
+- Mission statement (1-2 sentences)
+- Persona profiles (discovered or inferred)
+- Content pillars with descriptions
+- Brand voice guidelines
+- Conversion funnel & CTA strategy
+- Competitive differentiation angle
+
+**Track A:** Present the inferred draft → user confirms/corrects → finalize.
+**Track B:** Synthesize from interview answers → present draft → user reviews.
+
+In both cases, the user must review and approve before saving.
+
+### Phase 2.5 — Business & Author Profiles
+
+After strategy is drafted, collect business and author context:
+
+**Business profile** (`.inblog/{subdomain}/business.md`):
+1. Ask about the product/service:
+   - "What does your product do? What are the core features?"
+   - "How is pricing structured?"
+   - "What's your main differentiator vs competitors?"
+2. Build a feature → blog topic mapping:
+   - "Which features are relevant to which content pillars?"
+   - "What CTA angles work best for each topic area?"
+3. Save to `.inblog/{subdomain}/business.md` using `scaffold/business-template.md` format
+
+**Author profiles** (`.inblog/{subdomain}/authors/{author-id}.md`):
+1. Get author list:
+   ```bash
+   inblog authors list --json
+   ```
+2. For each primary author, ask:
+   - "What's your professional background and expertise?"
+   - "Any specific experiences, projects, or stories you want to reference in posts?"
+   - "Any strong opinions or contrarian takes in your domain?"
+3. Save to `.inblog/{subdomain}/authors/{author-id}.md` using `scaffold/author-template.md` format
+
+Both are optional — if user wants to skip, proceed without them. Skills degrade gracefully when these files don't exist.
+
+### Phase 3 — Persist
+
+```bash
+# Detect active blog
+inblog blogs me --json
+# → subdomain
+
+# Ensure directories exist
+# mkdir -p .inblog/{subdomain}/plans/
+# mkdir -p .inblog/{subdomain}/authors/
+# mkdir -p .inblog/{subdomain}/cache/
+
+# Save files:
+# .inblog/{subdomain}/strategy.md
+# .inblog/{subdomain}/business.md (if collected)
+# .inblog/{subdomain}/authors/{id}.md (for each author, if collected)
+```
+
+Use template structures from `scaffold/` as the base format for each file.
+
+### Phase 4 — Next Steps
+
+Suggest to the user:
+```
+Strategy saved to .inblog/{subdomain}/strategy.md
+Business profile saved to .inblog/{subdomain}/business.md
+Author profiles saved to .inblog/{subdomain}/authors/
+
+Recommended next step:
+→ Run /content-plan to create your first editorial calendar
+```
+
+## Refresh Mode
+
+When invoked with `/blog-strategy refresh`:
+1. Read existing `.inblog/{subdomain}/strategy.md`
+2. Present current strategy to user
+3. Ask what has changed (new product, pivot, seasonal shift, etc.)
+4. Update only the changed sections
+5. Save updated file
+
+## Output File
+
+`.inblog/{subdomain}/strategy.md`
+
+## Integration Points
+
+- **content-plan** reads strategy.md to align editorial calendar with pillars and personas
+- **content-plan** uses competitor domains from strategy for D4S content gap analysis
+- **inblog-write-seo-post** reads strategy.md for voice, persona, and CTA style
+- **DataForSEO** enriches competitor landscape with real traffic/keyword data (when configured)
