@@ -1,6 +1,6 @@
 ---
 name: inblog-write-seo-post
-description: "SEO 블로그 포스트 작성 & 발행. 트리거: '블로그 글 써줘', '포스트 작성', '글 발행'"
+description: "SEO 블로그 포스트 작성 & 발행. 트리거: '블로그 글 써줘', '포스트 작성', '글 발행', 'SEO 포스트', '블로그 포스트 만들어', '글 쓰기', 'write blog post', 'publish post'"
 ---
 
 # SEO 블로그 포스트 작성 워크플로우
@@ -11,11 +11,15 @@ description: "SEO 블로그 포스트 작성 & 발행. 트리거: '블로그 글
 - 여러 블로그 보유 시: `inblog blogs list` → `inblog blogs switch <id 또는 subdomain>`
 - Team 플랜 이상 필요 (무료 플랜 시 업그레이드 안내)
 
+## 인자 처리
+
+`$ARGUMENTS`가 제공된 경우 (예: `/write-seo-post AI 마케팅 가이드`), 주제를 Phase 1의 1단계에서 바로 사용하여 "주제가 무엇인가요?" 질문을 건너뜁니다.
+
 ## 워크플로우
 
 ### Phase 1: 정보 수집 (멀티턴)
 
-유저에게 순서대로 확인:
+유저에게 순서대로 확인 (`$ARGUMENTS`로 주제가 제공되면 1번 건너뛰기):
 
 1. **주제** — 무엇에 대해 쓸 것인가
 2. **목적** — 어떤 전환을 원하는가 (signup, demo, newsletter, purchase, contact)
@@ -100,7 +104,9 @@ inblog posts schedule <post-id> --at "2026-03-10T09:00:00Z"    # 예약
 # 또는 드래프트 유지 (아무것도 하지 않음)
 ```
 
-### Phase 4: 완료 확인
+### Phase 4: 품질 체크 & 완료 확인
+
+**발행 전 반드시 `inblog-content-quality-checklist` 스킬의 체크리스트를 확인하세요.**
 
 발행 후 링크 제공:
 

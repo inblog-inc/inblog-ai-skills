@@ -1,117 +1,117 @@
 ---
 name: inblog-manage-posts
-description: "포스트 관리. 수정, 발행, 비공개, 예약, 삭제. 트리거: '글 수정', '발행해줘', '비공개로', '글 삭제'"
+description: "Post management: edit, publish, unpublish, schedule, delete. Triggers: '글 수정', '발행해줘', '비공개로', '글 삭제', 'edit post', 'publish', 'unpublish'"
 ---
 
-# 포스트 관리 워크플로우
+# Post Management Workflow
 
-## 전제 조건
+## Prerequisites
 
-- `inblog auth status`로 인증/블로그 확인
-- 미인증 시: `inblog auth login --blog <id 또는 subdomain>` (대화형 프롬프트 회피)
-- 여러 블로그 보유 시: `inblog blogs list --json` → `inblog blogs switch <id 또는 subdomain>`
-- Team 플랜 이상 필요
+- Verify auth/blog with `inblog auth status`
+- If not authenticated: `inblog auth login --blog <id or subdomain>`
+- Multiple blogs: `inblog blogs list --json` → `inblog blogs switch <id or subdomain>`
+- Requires Team plan or higher
 
-## 포스트 조회
+## Listing Posts
 
 ```bash
-# 전체 목록
+# All posts
 inblog posts list
 
-# 발행된 글만
+# Published only
 inblog posts list --published
 
-# 드래프트만
+# Drafts only
 inblog posts list --draft
 
-# 특정 태그 필터
+# Filter by tag
 inblog posts list --tag-id 123
 
-# 포스트 상세
+# Post details
 inblog posts get <id>
 inblog posts get <id> --json
 ```
 
-## 포스트 수정
+## Editing Posts
 
 ```bash
-# 제목 수정
-inblog posts update <id> --title "새 제목"
+# Update title
+inblog posts update <id> --title "New Title"
 
-# 메타 정보 수정
+# Update meta info
 inblog posts update <id> \
-  --meta-title "SEO 타이틀" \
-  --meta-description "SEO 설명"
+  --meta-title "SEO Title" \
+  --meta-description "SEO Description"
 
-# 슬러그 수정
+# Update slug
 inblog posts update <id> --slug "new-slug"
 
-# 콘텐츠 수정 (content 내 로컬 이미지/base64 자동 CDN 업로드)
+# Update content (local images/base64 auto-uploaded to CDN)
 inblog posts update <id> --content-file ./updated-content.html
 
-# 커버 이미지 설정 (로컬 파일 또는 URL)
+# Set cover image (local file or URL)
 inblog posts update <id> --image ./cover.jpg
 inblog posts update <id> --image https://source.inblog.dev/...
 ```
 
-## 발행/비공개/예약
+## Publish/Unpublish/Schedule
 
 ```bash
-# 즉시 발행
+# Publish immediately
 inblog posts publish <id>
 
-# 비공개로 전환
+# Unpublish (set to draft)
 inblog posts unpublish <id>
 
-# 예약 발행
+# Schedule publication
 inblog posts schedule <id> --at "2026-03-10T09:00:00Z"
 ```
 
-## 태그/저자 관리
+## Tag/Author Management
 
 ```bash
-# 태그 목록
+# List tags on post
 inblog posts tags <id>
 
-# 태그 추가
+# Add tags
 inblog posts add-tags <id> --tag-ids 1,2,3
 
-# 태그 제거
+# Remove tag
 inblog posts remove-tag <postId> <tagId>
 
-# 저자 목록
+# List authors on post
 inblog posts authors <id>
 
-# 저자 추가
+# Add authors
 inblog posts add-authors <id> --author-ids uuid1,uuid2
 
-# 저자 제거
+# Remove author
 inblog posts remove-author <postId> <authorId>
 ```
 
-## 포스트 삭제
+## Deleting Posts
 
 ```bash
 inblog posts delete <id>
 ```
 
-⚠️ 삭제는 되돌릴 수 없습니다. 삭제 전 유저에게 확인을 받으세요.
+Warning: Deletion is irreversible. Always confirm with the user before deleting.
 
-## 링크 제공
+## Providing Links
 
-작업 완료 후 관련 링크 제공:
+After completing operations, provide relevant links:
 
-- **에디터:** `https://inblog.ai/dashboard/{subdomain}/{postId}`
-- **공개 URL:** `https://{subdomain}.inblog.io/{slug}`
-- 커스텀 도메인이 있으면: `https://{custom_domain}/{slug}`
+- **Editor:** `https://inblog.ai/dashboard/{subdomain}/{postId}`
+- **Public URL:** `https://{subdomain}.inblog.io/{slug}`
+- With custom domain: `https://{custom_domain}/{slug}`
 
-## 에러 처리
+## Error Handling
 
-| 에러 코드 | 해결 |
-|-----------|------|
-| POST_NOT_FOUND | 포스트 ID 확인 (`inblog posts list`) |
-| SLUG_CONFLICT | 다른 슬러그 사용 |
-| INVALID_TAG_IDS | `inblog tags list`로 유효한 ID 확인 |
-| INVALID_AUTHOR_IDS | `inblog authors list`로 유효한 ID 확인 |
-| PAST_SCHEDULED_DATE | 미래 날짜 사용 |
-| SUBSCRIPTION_REQUIRED | Team 플랜 업그레이드 |
+| Error Code | Resolution |
+|-----------|-----------|
+| POST_NOT_FOUND | Check post ID (`inblog posts list`) |
+| SLUG_CONFLICT | Use a different slug |
+| INVALID_TAG_IDS | Verify with `inblog tags list` |
+| INVALID_AUTHOR_IDS | Verify with `inblog authors list` |
+| PAST_SCHEDULED_DATE | Use a future date |
+| SUBSCRIPTION_REQUIRED | Upgrade to Team plan |

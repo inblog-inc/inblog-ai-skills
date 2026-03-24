@@ -1,42 +1,119 @@
 ---
 name: inblog-content-quality-checklist
-description: "콘텐츠 품질 체크리스트. 포스트 작성 완료 후, 발행 전 반드시 확인."
+description: "Content quality checklist. Must check before publishing. Triggers: '품질 체크', '발행 전 검토', '체크리스트', 'quality check', 'pre-publish review'"
 ---
 
-# 콘텐츠 품질 체크리스트
+# Content Quality Checklist
 
-## 색인 필수 조건 (이것 하나라도 빠지면 색인 실패 리스크)
-- [ ] 콘텐츠 길이 3,000자+ (한국어)
-- [ ] 이미지 3장+ (alt 텍스트 포함)
-- [ ] 내부 링크 2개+
-- [ ] meta_description 설정 (150-160자)
-- [ ] 커버 이미지 (image 필드) 설정
+Run this checklist after writing a post, before publishing.
 
-## 랭킹 경쟁력 (상위 노출을 원하면)
-- [ ] 경쟁 키워드: 5,000자+ 콘텐츠
-- [ ] meta_title 설정 (title과 다른 SERP 최적화 버전)
-- [ ] author_ids로 저자 연결
-- [ ] JSON-LD 구조화 데이터 (Article 스키마)
-- [ ] 4종류 이상의 콘텐츠 블록 타입 사용
-- [ ] 외부 권위 있는 사이트 링크 2개+
-- [ ] H2→H3→H4 계층 활용 (H3만 사용 금지)
+---
 
-## 파생 콘텐츠 추가 조건
-- [ ] 원본 대비 50% 이상 독자적 콘텐츠
-- [ ] canonical_url 설정 여부 판단
-- [ ] 원본과 다른 heading 구조
-- [ ] 한국 시장 데이터/사례 포함
+## 1. Indexing Requirements (missing any = indexing risk)
 
-## AI 콘텐츠 탐지 회피
-- [ ] 시리즈 포스트: 동일 템플릿 구조 3회 이상 반복 금지
-- [ ] 고정 섹션명(인블로그 팀 코멘트 등) 글마다 변경
-- [ ] CTA 문구 글별 커스터마이즈
-- [ ] 문장 구조 변화 (모든 문장이 평서문이면 안됨)
+- [ ] Content length 3,000+ characters (Korean standard)
+- [ ] 3+ images (all with alt text)
+- [ ] 2+ internal links (anchor text includes target keyword)
+- [ ] meta_description set (150-160 chars, keyword + value proposition)
+- [ ] Cover image (image field) set (1200x630px recommended)
 
-## 포스트 메타데이터 체크
-- [ ] meta_title 설정 (60자 이내, title과 다른 버전)
-- [ ] meta_description 설정 (150-160자, 키워드 포함)
-- [ ] image 필드 설정 (커버/OG 이미지, 1200x630px 권장)
-- [ ] author_ids 연결
-- [ ] cta_text + cta_link 설정 (글 주제에 맞게 커스터마이즈)
-- [ ] tag_ids 연결
+## 2. Ranking Competitiveness (for top positions)
+
+- [ ] Competitive keywords: 5,000+ chars content
+- [ ] meta_title set (different from title, SERP-optimized version, under 60 chars)
+- [ ] author_ids connected (E-E-A-T: expertise signal)
+- [ ] JSON-LD structured data (Article or HowTo schema)
+- [ ] 4+ content block types used (p, list, code, table, callout, etc.)
+- [ ] 2+ external authoritative links (citing sources)
+- [ ] H2→H3→H4 hierarchy (no H3-only usage, question-format headings recommended)
+
+## 3. AI Citability
+
+For AI search platforms (ChatGPT, Perplexity, Gemini, etc.) to cite your content, it needs extractable structure.
+
+### Answer-First Structure
+- [ ] First 1-2 sentences of each H2 section = core answer (explanation follows)
+- [ ] Definition pattern used: "X is [definition]" / "X refers to [explanation]"
+- [ ] Specific numbers/data included ("50% average improvement", "3 methods", etc.)
+
+### Paragraph Structure
+- [ ] 2-4 sentences per paragraph (1 sentence = weak, 5+ = hard to extract)
+- [ ] One paragraph = one idea (no topic mixing)
+- [ ] Each paragraph makes sense when extracted independently
+- [ ] Key claims placed in first sentence of paragraph
+
+### Comparison/List Structure
+- [ ] Comparison content: organized in table format (AI cites tables well)
+- [ ] Procedural content: numbered ordered lists
+
+## 4. E-E-A-T Signals (content trustworthiness)
+
+### Experience
+- [ ] First-person experience mentioned ("After testing this directly...", "In our team's case...")
+- [ ] Specific case results/metrics included (real data, not abstract advice)
+- [ ] Screenshots, charts, or other evidence of direct experience
+
+### Expertise
+- [ ] Appropriate technical depth for the topic (avoid superficial explanations)
+- [ ] Data-backed claims (statistics, research citations)
+- [ ] Accurate use of terminology (define on first use)
+
+### Authoritativeness
+- [ ] Author profile connected (author_ids)
+- [ ] External authoritative sources cited (official docs, research papers, industry reports)
+
+### Trustworthiness
+- [ ] Sources cited for claims (links or references)
+- [ ] Trade-offs acknowledged ("This method works well for X, but Z is better for Y")
+- [ ] Time-specific info has clear dates (published_at set)
+
+## 5. AI Content Quality
+
+### High-Quality Signals (should be present)
+- [ ] Original data/insights: information not available elsewhere
+- [ ] Specific examples: cases with names, numbers, dates (not abstract)
+- [ ] Expert judgment: opinions/recommendations, not just fact listing
+- [ ] Actionable advice: specific actions, not vague guidance
+
+### Low-Quality Signals (should NOT be present)
+- [ ] No "In today's rapidly changing world..." type AI-style openings
+- [ ] No "It's worth noting that...", "Interestingly..." meaningless transitions
+- [ ] No identical ending pattern across all sections
+- [ ] No "It depends on various factors" vague hedging
+- [ ] No filler paragraphs that add no information when removed
+
+## 6. Derivative Content Additional Checks
+
+For content based on external sources:
+
+- [ ] 50%+ original content vs. source
+- [ ] canonical_url decision made (skip if sufficiently original)
+- [ ] Different heading structure from source
+- [ ] Local market data/cases or independent analysis included
+- [ ] Source cited via callout + bookmark link
+
+## 7. Content Freshness
+
+- [ ] published_at set (specific date, no vague "recently" expressions)
+- [ ] Time-dependent info includes year/date ("as of 2026", "March 2026")
+- [ ] Use specific dates instead of "latest", "current", "this year"
+
+## 8. Post Metadata Final Check
+
+- [ ] title (under 60 chars, primary keyword near front)
+- [ ] meta_title (SERP-optimized version, different from title)
+- [ ] meta_description (150-160 chars, keyword + value prop + call to action)
+- [ ] slug (lowercase+hyphens, no stop words, includes keyword)
+- [ ] image field (cover/OG image, 1200x630px)
+- [ ] author_ids connected
+- [ ] tag_ids connected (3-5 tags)
+- [ ] cta_text + cta_link (customized to post topic)
+
+## 9. Series Post Repetition Prevention
+
+For posts in the same series/campaign:
+
+- [ ] No identical template structure repeated 3+ times
+- [ ] Fixed section names (e.g., "Team Commentary") varied per post
+- [ ] CTA copy customized per post (no same CTA for 5+ posts)
+- [ ] Sentence structure variation (not all declarative sentences)

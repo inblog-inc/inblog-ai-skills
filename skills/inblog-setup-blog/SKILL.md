@@ -133,6 +133,15 @@ CLI로 설정할 수 없는 항목은 대시보드 링크 제공:
 
 설정 완료 후 최종 헬스체크 다시 실행하여 개선 상태 확인.
 
+## 에러 처리
+
+| 에러 코드 | 해결 |
+|-----------|------|
+| SUBSCRIPTION_REQUIRED | Team 플랜 업그레이드 필요 |
+| UNAUTHORIZED | `inblog auth login`으로 재인증 |
+| VALIDATION_ERROR | 입력값 확인 (이미지 형식, GA ID 형식 등) |
+| BLOG_MISMATCH | `inblog blogs switch`로 올바른 블로그 선택 |
+
 ## 참고
 
 - Team 플랜 이상에서만 CLI 사용 가능

@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import { detectTools } from '../src/detect.js';
 import { installForTools } from '../src/install.js';
 import { ensureCli } from '../src/cli-install.js';
+import { scaffoldWorkspace } from '../src/workspace.js';
 
 const ALL_TOOLS = ['claude', 'cursor', 'copilot', 'codex', 'gemini'] as const;
 
@@ -64,6 +65,16 @@ async function main() {
 
   const successCount = results.filter(r => r.success).length;
   console.log(chalk.dim(`\n  ${successCount}/${results.length} tools configured.\n`));
+
+  // Scaffold .inblog/ workspace
+  console.log(chalk.dim('Setting up .inblog/ workspace...'));
+  const workspace = scaffoldWorkspace(projectDir);
+  if (workspace.created) {
+    console.log(chalk.green('  ✓ .inblog/ workspace created'));
+  } else {
+    console.log(chalk.dim('  ✓ .inblog/ workspace (already exists)'));
+  }
+  console.log();
 
   // CLI install step
   console.log(chalk.dim('Checking @inblog/cli...'));
