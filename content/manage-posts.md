@@ -54,6 +54,23 @@ inblog posts update <id> --image ./cover.jpg
 inblog posts update <id> --image https://source.inblog.dev/...
 ```
 
+## Preview Before Publishing
+
+After editing a post, verify changes visually before publishing:
+
+```bash
+# Generate a preview link (24h TTL by default)
+inblog posts preview <id>
+
+# List active preview links
+inblog posts preview list <id>
+
+# Revoke a preview link
+inblog posts preview revoke <token>
+```
+
+Use `claude-in-chrome` to open the preview URL, take a screenshot, and check for readability, broken images, and layout issues. The `posts create` and `posts update` commands also output a preview link automatically.
+
 ## Publish/Unpublish/Schedule
 
 ```bash

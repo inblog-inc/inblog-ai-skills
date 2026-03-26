@@ -60,11 +60,12 @@ Evaluate conditions top-to-bottom. **Stop at the first match** — that's the ac
 | P6 | Cache expired (posts, analytics, keywords) | Refresh data | Data collection |
 | P7 | Plan has unwritten P1 posts | Write next P1 post | `inblog-write-seo-post` |
 | P8 | Draft posts pending review | Quality check | `inblog-content-quality-checklist` |
-| P9 | Reviewed drafts ready to publish | Publish | `inblog-manage-posts` |
-| P10 | Plan has unwritten P2 posts | Write next P2 post | `inblog-write-seo-post` |
-| P11 | All planned posts written + 7+ days since last analysis | Performance review | `inblog-check-analytics` |
-| P12 | Analytics show issues (low CTR, low CVR) | Optimize existing posts | `inblog-manage-posts` |
-| P13 | All caught up | Suggest next planning cycle | `inblog-content-plan` |
+| P9 | Quality-checked drafts need visual verify | Preview verify | `inblog-manage-posts` (preview) |
+| P10 | Reviewed drafts ready to publish | Publish | `inblog-manage-posts` |
+| P11 | Plan has unwritten P2 posts | Write next P2 post | `inblog-write-seo-post` |
+| P12 | All planned posts written + 7+ days since last analysis | Performance review | `inblog-check-analytics` |
+| P13 | Analytics show issues (low CTR, low CVR) | Optimize existing posts | `inblog-manage-posts` |
+| P14 | All caught up | Suggest next planning cycle | `inblog-content-plan` |
 
 ## Phase 3 — Execute
 

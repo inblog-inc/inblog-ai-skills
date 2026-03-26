@@ -75,6 +75,14 @@ inblog posts delete <id> --json
 inblog posts publish <id> --json
 inblog posts unpublish <id> --json
 inblog posts schedule <id> --at "2025-03-15T09:00:00+09:00" --json
+
+# Preview
+inblog posts preview <id> --json                              # Generate preview link
+inblog posts preview <id> --ttl 72 --json                     # Custom TTL (hours)
+inblog posts preview <id> --one-time --json                   # One-time use link
+inblog posts preview <id> --name "for-review" --json          # Named link
+inblog posts preview list <id> --json                         # List active tokens
+inblog posts preview revoke <token> --json                    # Revoke token
 ```
 
 **List Filter Parameters:**

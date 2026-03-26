@@ -109,7 +109,19 @@ For content based on external sources:
 - [ ] tag_ids connected (3-5 tags)
 - [ ] cta_text + cta_link (customized to post topic)
 
-## 9. Series Post Repetition Prevention
+## 9. Visual Preview Verification
+
+Use the preview link from `inblog posts preview <id>` or the auto-generated link from create/update.
+
+- [ ] Open preview URL with `claude-in-chrome` and screenshot
+- [ ] All images load (no broken image icons)
+- [ ] Cover image displays correctly
+- [ ] Code blocks and tables render properly
+- [ ] Callout blocks and special elements display correctly
+- [ ] Text is readable (font size, line spacing, contrast)
+- [ ] No layout overflow or misalignment
+
+## 10. Series Post Repetition Prevention
 
 For posts in the same series/campaign:
 

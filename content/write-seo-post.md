@@ -133,6 +133,24 @@ inblog posts schedule <post-id> --at "2026-03-10T09:00:00Z" # Scheduled
 # Or keep as draft (do nothing)
 ```
 
+### Phase 3.5: Preview Verification
+
+Before publishing, verify the post visually:
+
+1. The `posts create` output includes a preview link (`Preview: https://inblog.io/p/...`)
+2. Open the preview URL using `claude-in-chrome` tools:
+   - Navigate to the preview URL
+   - Take a screenshot of the full page
+3. Check the following:
+   - **Readability:** Title, body text, paragraph spacing are clear
+   - **Images:** All images load correctly, no broken images
+   - **Layout:** No layout issues, proper content flow
+   - **Missing elements:** Cover image present, tags displayed, author shown
+4. If issues found:
+   - Fix content with `inblog posts update <id> --content-file ./fixed.html`
+   - New preview link is generated automatically — verify again
+5. If everything looks good, proceed to publish
+
 ### Phase 4: Completion
 
 After publishing, provide links:
