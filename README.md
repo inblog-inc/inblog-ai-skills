@@ -34,10 +34,10 @@ npx @inblog/ai-skills --tools claude,cursor     # Install for specific tools
 ## Included Skills
 
 ### `write-seo-post`
-Write and publish SEO-optimized blog posts. Guides through topic selection, outline, content generation, image sourcing, and publishing via CLI.
+Write and publish SEO-optimized blog posts. Guides through topic selection, outline, content generation, image sourcing, visual preview verification, and publishing via CLI.
 
 ### `manage-posts`
-Edit, publish, unpublish, schedule, and delete posts. Update titles, slugs, meta descriptions, tags, authors, and cover images.
+Edit, publish, unpublish, schedule, and delete posts. Update titles, slugs, meta descriptions, tags, authors, and cover images. Generate preview links to visually verify posts before publishing.
 
 ### `image-sourcing`
 4 methods for sourcing blog images:
@@ -59,7 +59,16 @@ Traffic and SEO analysis workflows. Analyze top posts, keywords, traffic sources
 Complete CLI and API reference. All endpoints, fields, filters, error codes, and response formats.
 
 ### `content-quality-checklist`
-Pre-publish quality checklist: content length, image count, internal links, meta descriptions, and SEO competitiveness criteria.
+Pre-publish quality checklist: content length, image count, internal links, meta descriptions, SEO competitiveness criteria, and visual preview verification.
+
+### `content-plan`
+Strategic content editorial planning: topic clusters, funnel mapping, content gaps, competitive differentiation, and publication cadence.
+
+### `blog-strategy`
+Blog strategy definition: business purpose, target personas, content pillars, brand voice, and conversion goals.
+
+### `autopilot`
+Autonomous blog growth agent. Assesses blog state, prioritizes highest-impact action (from setup to content creation to performance review), and executes one atomic action per invocation.
 
 ## Prerequisites
 
