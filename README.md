@@ -70,6 +70,31 @@ Blog strategy definition: business purpose, target personas, content pillars, br
 ### `autopilot`
 Autonomous blog growth agent. Assesses blog state, prioritizes highest-impact action (from setup to content creation to performance review), and executes one atomic action per invocation.
 
+## Workspace Structure
+
+Skills use a `.inblog/` workspace directory in your project to persist context across conversations. Created automatically when you first use a skill.
+
+```
+.inblog/
+├── config.json              # External service credentials (DataForSEO, Gemini)
+├── {subdomain}/
+│   ├── strategy.md          # Blog strategy (mission, personas, pillars, voice)
+│   ├── business.md          # Business profile (features, pricing, USPs, CTA mapping)
+│   ├── authors/
+│   │   └── {author-id}.md   # Author profiles (expertise, writing style)
+│   ├── plans/
+│   │   └── 2026-03.md       # Monthly editorial calendars
+│   └── cache/
+│       ├── posts.json       # Published posts cache (TTL 7d)
+│       ├── analytics.json   # Traffic data cache (TTL 7d)
+│       └── gsc-keywords.json # Search Console keywords (TTL 7d)
+```
+
+- **Strategy & Business** -- Filled out via `blog-strategy` skill. Skills auto-read these to match your brand voice, target audience, and CTAs.
+- **Author profiles** -- Writing style and expertise per author. Skills adapt tone and claim appropriate authority.
+- **Content plans** -- Monthly editorial calendars from `content-plan`. Posts link back to planned topics.
+- **Cache** -- API response snapshots with TTL-based expiration. Avoids redundant API calls. Force refresh with `--refresh`.
+
 ## Prerequisites
 
 - [inblog.ai](https://inblog.ai) account with **Team plan** or higher
