@@ -5,6 +5,7 @@ import { cursorAdapter } from './adapters/cursor.js';
 import { copilotAdapter } from './adapters/copilot.js';
 import { codexAdapter } from './adapters/codex.js';
 import { geminiAdapter } from './adapters/gemini.js';
+import { coworkAdapter } from './adapters/cowork.js';
 
 const adapterMap: Record<string, Adapter> = {
   claude: claudeAdapter,
@@ -12,6 +13,7 @@ const adapterMap: Record<string, Adapter> = {
   copilot: copilotAdapter,
   codex: codexAdapter,
   gemini: geminiAdapter,
+  cowork: coworkAdapter,
 };
 
 export async function installForTools(

@@ -1,8 +1,9 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 export interface DetectedTool {
-  name: 'claude' | 'cursor' | 'copilot' | 'codex' | 'gemini';
+  name: 'claude' | 'cursor' | 'copilot' | 'codex' | 'gemini' | 'cowork';
   label: string;
   detected: boolean;
 }
@@ -33,6 +34,11 @@ export function detectTools(projectDir: string): DetectedTool[] {
       name: 'gemini',
       label: 'Gemini CLI',
       detected: fs.existsSync(path.join(projectDir, 'GEMINI.md')),
+    },
+    {
+      name: 'cowork',
+      label: 'Claude Cowork',
+      detected: fs.existsSync(path.join(os.homedir(), '.agents', 'skills')) || fs.existsSync('/Applications/Claude.app'),
     },
   ];
 }

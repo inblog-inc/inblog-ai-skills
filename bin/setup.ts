@@ -5,7 +5,7 @@ import { installForTools } from '../src/install.js';
 import { ensureCli } from '../src/cli-install.js';
 import { scaffoldWorkspace } from '../src/workspace.js';
 
-const ALL_TOOLS = ['claude', 'cursor', 'copilot', 'codex', 'gemini'] as const;
+const ALL_TOOLS = ['claude', 'cursor', 'copilot', 'codex', 'gemini', 'cowork'] as const;
 
 async function main() {
   const projectDir = process.cwd();
