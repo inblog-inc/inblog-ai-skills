@@ -17,6 +17,7 @@
     "lint": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
+  "license": "MIT",
   "engines": {
     "node": ">=18"
   },
