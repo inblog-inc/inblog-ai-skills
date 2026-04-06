@@ -34,17 +34,17 @@ npx @inblog/ai-skills --tools claude,cursor     # Install for specific tools
 ## Included Skills
 
 ### `write-seo-post`
-Write and publish SEO-optimized blog posts. Guides through topic selection, outline, content generation, image sourcing, visual preview verification, and publishing via CLI.
+Write and publish SEO-optimized blog posts. Guides through topic selection, outline, content generation, image sourcing, JSON-LD structured data, CTA configuration, visual preview verification, and publishing via CLI.
 
 ### `manage-posts`
-Edit, publish, unpublish, schedule, and delete posts. Update titles, slugs, meta descriptions, tags, authors, and cover images. Generate preview links to visually verify posts before publishing.
+Edit, publish, unpublish, schedule, and delete posts. Update titles, slugs, meta descriptions, CTA buttons, custom scripts (JSON-LD, head/body scripts), tags, authors, and cover images. Generate preview links to visually verify posts before publishing.
 
 ### `image-sourcing`
 4 methods for sourcing blog images:
 1. **Gemini generation** -- AI-generated illustrations (requires `GEMINI_API_KEY`)
 2. **Unsplash** -- Stock photos for hero/cover images
 3. **Browser screenshots** -- Capture tool UIs and web pages
-4. **HTML to screenshot** -- Design infographics, comparison cards, and data visualizations with Tailwind CSS
+4. **Design Studio** -- D3.js + Tailwind + SVG로 전문 수준 비주얼 제작: 카드뉴스 시리즈, 인포그래픽, 데이터 차트(donut/bar/line), collage hero, 타임라인, stat dashboard. 6가지 컬러 팔레트, 그라디언트 배경, Lucide 아이콘 등 디자인 시스템 포함
 
 ### `content-html`
 Complete reference for inblog's TipTap-based HTML format. Covers allowed tags, custom blocks (callouts, image grids, link buttons, YouTube embeds), and best practices.

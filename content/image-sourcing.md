@@ -37,9 +37,13 @@ inblog blogs banner set --image ./banner.png --title "Title"
 |-----------|--------|---------|
 | Tool/service UI showcase | Method 3: Screenshot | Google Search Console screen |
 | Mood/concept imagery | Method 2: Unsplash | Hero image, background |
-| Text-heavy design (Korean) | Method 4: HTML→Screenshot | Card news, infographic, comparison |
+| Text-heavy design (Korean) | Method 4: Design Studio | Card news, infographic, comparison |
 | Custom illustration/diagram | Method 1: Gemini generation | Concept diagram, process flow |
-| Data visualization | Method 4: HTML→Screenshot | Charts, stat cards |
+| Data visualization (charts) | Method 4: Design Studio + D3 | Bar, donut, line, area charts |
+| Stat cards / dashboards | Method 4: Design Studio | KPI cards, metric overviews |
+| Card news series | Method 4: Design Studio | Multi-slide carousel |
+| Collage hero / OG image | Method 4: Design Studio | Image + SVG + text layered |
+| Timeline / roadmap | Method 4: Design Studio | Project phases, history |
 
 ---
 
@@ -121,113 +125,236 @@ Uses browsermcp (pre-configured).
 
 ---
 
-## Method 4: HTML→Screenshot Design (Claude-designed)
+## Method 4: Design Studio (Gemini + Playwright)
 
-### Use Cases
+**Gemini generates HTML/CSS design code, Playwright renders it, Claude verifies.** Claude does NOT write design code — it only handles planning and verification.
 
-Card news, infographics, comparison cards, quote cards, stat cards, data visualization
+### Architecture
+
+```
+Claude (plan)  →  Gemini API (HTML gen)  →  Playwright (render)  →  Claude (verify)
+     ↑                                                                    |
+     └──────────────── feedback (screenshot + fix instructions) ──────────┘
+```
+
+- **Claude**: Creative brief, brand check, verification, feedback loop
+- **Gemini 3.1 Pro Preview**: HTML/CSS design code generation (Gemini owns the design taste)
+- **Playwright**: HTML → PNG screenshot rendering
+
+### Prerequisites
+
+- `GEMINI_API_KEY` env var or `.inblog/config.json` → `gemini.apiKey`
+- Playwright (`npx playwright install chromium`)
+
+**Fallback (no Gemini API key):** If Gemini is unavailable, Claude generates HTML directly at Step 2. The same workflow applies (Steps 1→3→4→5→6). When writing HTML directly:
+- Follow the Gemini System Prompt below as self-constraints (HARD RULES, ANTI-PATTERNS, QUALITY BAR)
+- Follow the HTML Structure Rules below strictly — incorrect structure causes blank renders
+- Run the Verify loop honestly — Claude tends to be lenient on its own output. Be harsh.
+
+### Gemini System Prompt
+
+System instruction sent to Gemini. **Use this prompt verbatim.**
+
+```
+You are a top-tier editorial designer. You create blog OG images and infographics as HTML/CSS that look like they belong on Linear.app, Vercel, Toss Tech Blog, or a premium design magazine.
+
+HARD RULES (never break):
+- Output ONLY complete HTML. No markdown, no explanation, no code fences.
+- Canvas size will be specified per request. Include Tailwind CDN + Pretendard font CDN.
+- Title must be 64px+ and dominate the image. Max 2 lines.
+- Total text on OG images: title + 1 small label. That's it.
+- Padding: 32-48px. This is an image, not a website.
+- Pretendard CDN: https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css
+- Tailwind CDN: https://cdn.tailwindcss.com
+
+HTML STRUCTURE (critical — incorrect structure causes blank renders):
+- body must have margin:0; padding:0; and NO height:100vh, NO display:flex centering.
+- The design container div must be a DIRECT child of body, with explicit width and height.
+- NO wrapper divs for centering. NO box-shadow on the canvas. The div IS the viewport.
+- Correct structure:
+  <body style="margin:0;padding:0">
+    <div style="width:1200px;height:630px;position:relative;overflow:hidden;...">
+      <!-- design content -->
+    </div>
+  </body>
+
+ANTI-PATTERNS (avoid — they make designs look cheap):
+- Industry clichés as the primary design direction (finance=navy+gold, beauty=pink, tech=dark+purple). You may use these colors if they genuinely serve the design, but don't default to them.
+- Centered PowerPoint layouts. Prefer asymmetric, editorial compositions.
+- Flat single-color backgrounds with no depth or texture.
+- More than 3 colors.
+- Decorative elements without structural purpose (dots, rings, glows, random shapes).
+- Text shadows, outlines, emboss effects.
+- Generic unprocessed stock photos.
+- Tiny text. Nothing below 40px on a 1200x630 canvas.
+
+QUALITY BAR:
+- Every image should feel like a different designer made it, but all at the same professional level.
+- The design should match the industry's audience expectations while feeling modern and fresh.
+- Use the photo if provided — crop it intentionally with clip-path or object-position. Adjust brightness/saturation with CSS filters.
+- Typography is the hero. Make it bold, make it big, make it considered.
+```
+
+---
 
 ### Workflow
 
-1. Create HTML/CSS file (`/tmp/design.html`)
-2. Open via browsermcp: `file:///tmp/design.html`
-3. Capture screenshot
-4. Insert into inblog post
+#### Step 1: CREATIVE BRIEF (Claude)
 
-### HTML Boilerplate
+Plan before generating code.
 
-```html
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Noto Sans KR', sans-serif; margin: 0; padding: 0; }
-  </style>
-</head>
-<body>
-  <!-- Content -->
-</body>
-</html>
+**1-A. Brand check (once per session)**
+
+```bash
+inblog blogs me --json
+# → Get subdomain, custom_domain, logo_url
+# → Visit actual blog URL to check tone, colors, existing image styles
 ```
 
-### Templates
+**1-B. Per-image concept**
 
-#### Card News (1080x1080)
+Compose the user prompt to send to Gemini. Include:
 
-```html
-<div class="w-[1080px] h-[1080px] bg-gradient-to-br from-blue-600 to-purple-700 flex flex-col items-center justify-center p-16 text-white text-center">
-  <div class="text-[120px] font-black mb-8">01</div>
-  <h2 class="text-5xl font-bold mb-6 leading-tight">Key Message Here</h2>
-  <p class="text-2xl opacity-80 max-w-[800px]">Supporting description text</p>
-</div>
+- Blog industry/context (one line)
+- Post title
+- Canvas size (1200x630, 1080x1080, etc.)
+- Photo URL if applicable (sourced via Method 2 or 3)
+- Blog brand tone if known ("light and warm", "modern dark", etc.)
+- **Do NOT include implementation details (colors, layout specifics)** — Gemini decides
+
+**Good user prompt examples:**
+```
+Korean fintech blog, modern and trustworthy tone.
+Title: "2026 하반기 투자 전략 리포트"
+Canvas: 1200x630px
+No photo needed — typography-focused.
 ```
 
-#### Comparison Card (1200x630)
-
-```html
-<div class="w-[1200px] h-[630px] bg-white flex">
-  <div class="flex-1 bg-red-50 p-12 flex flex-col justify-center">
-    <div class="text-red-500 text-xl font-bold mb-4">BEFORE</div>
-    <h3 class="text-3xl font-bold text-gray-900 mb-4">Previous Approach</h3>
-    <ul class="text-xl text-gray-600 space-y-3">
-      <li>Item 1</li>
-      <li>Item 2</li>
-      <li>Item 3</li>
-    </ul>
-  </div>
-  <div class="w-px bg-gray-200"></div>
-  <div class="flex-1 bg-green-50 p-12 flex flex-col justify-center">
-    <div class="text-green-500 text-xl font-bold mb-4">AFTER</div>
-    <h3 class="text-3xl font-bold text-gray-900 mb-4">Improved Approach</h3>
-    <ul class="text-xl text-gray-600 space-y-3">
-      <li>Item 1</li>
-      <li>Item 2</li>
-      <li>Item 3</li>
-    </ul>
-  </div>
-</div>
+```
+Korean beauty blog, warm and editorial feel.
+Title: "여름 선크림 TOP 5 비교"
+Canvas: 1200x630px
+Photo (use on one side): https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&h=630&fit=crop
 ```
 
-#### Process Diagram (1200x400)
+**Bad user prompt (don't do this):**
+```
+Navy background with gold accent, left-aligned title 72px, right side photo with circular clip-path...
+```
+↑ Dictating implementation makes the result look tacky. Give Gemini creative freedom.
 
-```html
-<div class="w-[1200px] h-[400px] bg-white flex items-center justify-center gap-4 p-12">
-  <div class="flex-1 bg-blue-50 rounded-2xl p-8 text-center">
-    <div class="text-blue-600 text-lg font-bold mb-2">STEP 1</div>
-    <div class="text-xl font-bold text-gray-900">Description</div>
-  </div>
-  <div class="text-3xl text-gray-300">→</div>
-  <div class="flex-1 bg-blue-50 rounded-2xl p-8 text-center">
-    <div class="text-blue-600 text-lg font-bold mb-2">STEP 2</div>
-    <div class="text-xl font-bold text-gray-900">Description</div>
-  </div>
-  <div class="text-3xl text-gray-300">→</div>
-  <div class="flex-1 bg-blue-50 rounded-2xl p-8 text-center">
-    <div class="text-blue-600 text-lg font-bold mb-2">STEP 3</div>
-    <div class="text-xl font-bold text-gray-900">Description</div>
-  </div>
-  <div class="text-3xl text-gray-300">→</div>
-  <div class="flex-1 bg-blue-600 rounded-2xl p-8 text-center">
-    <div class="text-blue-200 text-lg font-bold mb-2">RESULT</div>
-    <div class="text-xl font-bold text-white">Final Outcome</div>
-  </div>
-</div>
+#### Step 2: GENERATE (Gemini API)
+
+```bash
+curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key=$GEMINI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "system_instruction": {"parts": [{"text": "SYSTEM_PROMPT_HERE"}]},
+    "contents": [{"parts": [{"text": "USER_PROMPT_HERE"}]}],
+    "generationConfig": {"temperature": 1.0, "maxOutputTokens": 8192}
+  }'
+# → Extract HTML → save to /tmp/design-{name}.html
 ```
 
-#### Quote/Stat Card (1200x630)
-
-```html
-<div class="w-[1200px] h-[630px] bg-gray-900 flex flex-col items-center justify-center p-16 text-center">
-  <div class="text-8xl font-black text-blue-400 mb-6">73%</div>
-  <h3 class="text-3xl font-bold text-white mb-4 max-w-[900px] leading-relaxed">Description of the key statistic</h3>
-  <p class="text-xl text-gray-400">— Source: Research Organization, 2026</p>
-</div>
+Or via Python:
+```python
+import urllib.request, json, re, os
+api_key = os.environ["GEMINI_API_KEY"]
+url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro-preview:generateContent?key={api_key}"
+body = json.dumps({
+    "system_instruction": {"parts": [{"text": system_prompt}]},
+    "contents": [{"parts": [{"text": user_prompt}]}],
+    "generationConfig": {"temperature": 1.0, "maxOutputTokens": 8192}
+}).encode()
+req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+resp = json.loads(urllib.request.urlopen(req).read())
+html = resp["candidates"][0]["content"]["parts"][0]["text"]
+html = re.sub(r'^```(?:html)?\n?', '', html.strip())
+html = re.sub(r'\n?```$', '', html.strip())
 ```
 
+#### Step 3: RENDER (Playwright)
+
+```bash
+npx playwright screenshot --viewport-size="1200,630" --wait-for-timeout=3000 \
+  file:///tmp/design-{name}.html /tmp/design-{name}.png
+```
+
+#### Step 4: VERIFY (Claude)
+
+Read the screenshot and check against this list. **Any failure → go to Step 5.**
+
+| # | Check | Criteria |
+|---|-------|----------|
+| 1 | **Title size** | Readable when shrunk to mobile? Occupies 40%+ of canvas? |
+| 2 | **Fill ratio** | Content fills 75%+ of canvas? |
+| 3 | **Colors** | Vibrant and modern? Not dull or cliché? |
+| 4 | **Text contrast** | Text clearly distinguishable from background? |
+| 5 | **Industry fit** | Would the target audience feel trust/relevance? |
+| 6 | **Decoration** | No unnecessary decorative elements? |
+| 7 | **Photo** | (if used) Intentionally cropped/treated? Contextually relevant? |
+| 8 | **Pro standard** | Would you publish this on a professional blog? Not "it's fine" — "I want to use this"? |
+
+#### Step 5: REFINE (Gemini API — screenshot feedback)
+
+Send failed items with the **rendered screenshot image** back to Gemini:
+
+```python
+import base64
+with open("/tmp/design-{name}.png", "rb") as f:
+    img_b64 = base64.b64encode(f.read()).decode()
+
+body = json.dumps({
+    "contents": [{"parts": [
+        {"inline_data": {"mime_type": "image/png", "data": img_b64}},
+        {"text": "This is the rendered result. Problems:\n1. [specific issue]\n2. [specific issue]\n\nFix these issues. Output ONLY the complete fixed HTML."}
+    ]}],
+    "generationConfig": {"temperature": 0.8, "maxOutputTokens": 8192}
+}).encode()
+```
+
+After fix, repeat Step 3 → Step 4. **Max 3 iterations.** If still failing after 3, go back to Step 1 and re-plan the concept.
+
+#### Step 6: DELIVER
+
+```bash
+inblog images upload /tmp/design-{name}.png --json
+# → Returns CDN URL
+
+# Insert into post:
+# OG/cover: inblog posts create --image /tmp/design-{name}.png ...
+# Inline: <img data-type="imageBlock" src="CDN_URL" alt="..." width="800">
+# Series: <div data-type="imageCarousel" data-images='[...]'></div>
+```
+
+---
+
+### Image Sourcing (when photos are needed)
+
+Source photo URLs before sending to Gemini. **Don't grab random stock photos.**
+
+**Unsplash search strategy:**
+- Use specific keywords ("saas dashboard on macbook") not abstract ("business")
+- Search 3-4 different keyword variations to find the best match
+- Consider composition: pick photos with empty space where text will go
+- Use crop params: `?w=600&h=630&fit=crop&crop=right`
+
+**Direct screenshots:**
+- If the post discusses a specific tool/service → capture its actual UI via Method 3
+- Real product screenshots have better contextual relevance than stock photos
+
+**When no photo is better:**
+- If you can't find a fitting photo, don't force one
+- Strong typography alone > mediocre stock photo
+- Law, finance, consulting often work better with type-only designs
+
+### Multi-Slide (card news series)
+
+1. **Lock design tokens**: Record colors/fonts Gemini used on the first slide
+2. **Subsequent slides**: Tell Gemini "maintain the same design system as the previous slide"
+3. **Run Verify loop per slide** — also check cross-slide consistency
+4. **Batch upload**: `inblog images upload /tmp/slide-*.png`
+5. **Insert**: Use `imageCarousel` in post content
 ---
 
 ## Cross-References

@@ -138,7 +138,8 @@ Perform the following analysis using gathered data:
   - **TOFU** (Top of Funnel): Awareness, educational, high-volume keywords
   - **MOFU** (Middle of Funnel): Comparison, how-to, consideration content
   - **BOFU** (Bottom of Funnel): Case studies, demos, purchase-intent content
-- Flag imbalances (e.g., all TOFU, no MOFU/BOFU)
+  - **PARALLEL** (Parallel Tofu): Adjacent topics that attract ICP but aren't product-focused
+- Flag imbalances (e.g., all TOFU, no MOFU/BOFU, no PARALLEL)
 
 **Keyword opportunities**
 - From GSC: High impressions + low position (ranks 8-20) = quick wins
@@ -158,6 +159,52 @@ Perform the following analysis using gathered data:
 **Seasonality & timeliness**
 - Consider the planning period (month/quarter)
 - Industry events, product launches, seasonal trends
+
+**Parallel Tofu discovery**
+
+Read the Audience Interest Map from strategy.md → `parallel_interests` per persona. Then:
+
+1. **Keyword exploration on parallel interests:**
+   - For each parallel interest area, run keyword research (D4S or manual brainstorm)
+   - Look for: high search volume + low competition + matches blog tone
+   - Example: blog about SEO tools → parallel interest "AI 업무 자동화" → keywords: "ChatGPT 업무 활용법", "AI 회의록 자동화"
+
+2. **GSC outlier scan:**
+   - Check keywords bringing traffic that don't match any pillar
+   - These are organic signals that the audience associates the blog with adjacent topics
+   - If a keyword already ranks 10-30, a dedicated post could capture it
+
+3. **Tone fit filter:**
+   - For each candidate topic, check against strategy.md voice/brand:
+     - Can we write this in our normal tone without it feeling forced?
+     - Does it sit naturally next to our pillar content?
+     - Can we credibly cover this (even if we're not experts, is our perspective valuable)?
+   - Reject topics that fail tone fit — even if search volume is high
+
+4. **Soft CTA mapping:**
+   - Parallel posts use softer conversion: newsletter signup, brand recall, social sharing
+   - NOT hard product CTAs (the reader came for a non-product topic)
+   - Exception: if the topic naturally connects to a product feature, a subtle mention is fine
+   - Read business.md to check if any product feature tangentially relates
+
+5. **Content mix target:**
+   - Recommend **15-25%** of monthly posts as Parallel Tofu
+   - For a 8-post/month plan: 1-2 Parallel posts
+   - Don't let Parallel exceed 30% — the blog should still be anchored to its pillars
+
+**Parallel Tofu scoring:**
+
+| Signal | Score |
+|--------|-------|
+| High search volume (>1k/mo) in parallel interest area | +3 |
+| Low keyword difficulty (<30) | +2 |
+| GSC already shows impressions for related terms | +3 |
+| Competitors don't cover this (content gap) | +2 |
+| Naturally connects to a product feature | +1 |
+| Strong tone fit | Required (no score — must pass) |
+| Trending / timely | +2 |
+
+Rank Parallel candidates by score. Include top 1-2 in the plan.
 
 ### Phase 2.5 — Enrichment Interview (human-in-the-loop)
 
@@ -182,6 +229,8 @@ For each gap/opportunity, ask specifically:
 | High-volume keyword with weak competition | "Do you have a unique angle — proprietary data, contrarian take, or customer story for this?" |
 | No BOFU content | "What are the top 3 objections your sales team hears? Any customer success stories with metrics?" |
 | Competitor covers X, we don't | "Is this relevant to your product? Do you have a differentiated perspective?" |
+| Parallel Tofu opportunity in [topic] | "[topic]에 대해 글을 쓰면 타겟 고객이 관심을 가질 것 같은데, 이 주제로 우리 블로그에 글이 올라와도 괜찮을까요? 혹시 이 분야에 대한 팀의 경험이나 의견이 있나요?" |
+| GSC outlier keyword outside pillars | "이 키워드로 이미 유입이 오고 있는데, 의도적인 건가요? 이 방향으로 더 써볼까요?" |
 
 **3. Read business.md for product-topic mapping:**
 ```bash
@@ -214,9 +263,10 @@ For each planned post, include:
 | Priority | P1 (must publish) / P2 (should publish) / P3 (nice to have) |
 | Title idea | Working title (SEO-optimized) |
 | Target keyword | Primary SEO keyword (with volume/difficulty from D4S if available) |
-| Pillar | Which content pillar from strategy |
-| Funnel stage | TOFU / MOFU / BOFU |
+| Pillar | Which content pillar from strategy — or **PARALLEL** for adjacent topics |
+| Funnel stage | TOFU / MOFU / BOFU / **PARALLEL** |
 | Format | Tutorial / Listicle / Case study / Comparison / How-to / Opinion |
+| CTA approach | Standard (product CTA) / **Soft** (newsletter, brand only) — Parallel posts default to Soft |
 | Rationale | Why this post now (gap, opportunity, seasonal, request) |
 | Internal links | Which existing posts to link to/from |
 | Enrichment | Internal data, case studies, product features, user-provided insights |
@@ -225,8 +275,9 @@ For each planned post, include:
 **Ordering rules:**
 1. P1 items first, then P2, then P3
 2. Within same priority, balance across pillars
-3. Alternate funnel stages for variety
+3. Alternate funnel stages for variety — intersperse Parallel posts rather than clustering them
 4. Front-load quick wins for early momentum
+5. Parallel Tofu posts should be 15-25% of total (e.g., 1-2 out of 8)
 
 ### Phase 4 — Save & Present
 
@@ -248,7 +299,7 @@ For each planned post, include:
 ## Summary
 - Posts planned: N
 - Pillar coverage: [list]
-- Funnel mix: X TOFU / Y MOFU / Z BOFU
+- Funnel mix: X TOFU / Y MOFU / Z BOFU / W PARALLEL
 
 ## Posts
 
@@ -270,14 +321,27 @@ For each planned post, include:
 
 ### P3 — Nice to Have
 [...]
+
+### Parallel Tofu
+> Adjacent topics for audience growth. Soft CTA only.
+
+#### N. [Working Title]
+- **Keyword:** [target keyword]
+- **Parallel interest:** [which interest area from Audience Interest Map]
+- **Tone fit:** [why this works on our blog]
+- **CTA approach:** Soft (newsletter / brand awareness)
+- **Format:** [format]
+- **Rationale:** [why this topic, what data supports it]
+- **Effort:** [Quick/Standard/Deep]
 ```
 
 **Present to user as a prioritized table:**
 
-| # | Priority | Title | Keyword | Pillar | Funnel | Format | Effort |
-|---|----------|-------|---------|--------|--------|--------|--------|
-| 1 | P1 | ... | ... | ... | TOFU | Tutorial | Standard |
-| 2 | P1 | ... | ... | ... | MOFU | Comparison | Deep |
+| # | Priority | Title | Keyword | Pillar | Funnel | CTA | Format | Effort |
+|---|----------|-------|---------|--------|--------|-----|--------|--------|
+| 1 | P1 | ... | ... | ... | TOFU | Standard | Tutorial | Standard |
+| 2 | P1 | ... | ... | ... | MOFU | Standard | Comparison | Deep |
+| 3 | P2 | ... | ... | PARALLEL | PARALLEL | Soft | Listicle | Quick |
 
 **Offer next action for each item:**
 ```
@@ -301,8 +365,8 @@ Ready to start writing? Pick a topic number and I'll draft it using the publish 
 
 ## Integration Points
 
-- **blog-strategy** → reads strategy.md for pillars, personas, voice, competitor domains
-- **DataForSEO** → keyword research, competitor analysis, content gap identification
-- **inblog-write-seo-post** → plan items become pre-filled topics for writing
+- **blog-strategy** → reads strategy.md for pillars, personas, voice, competitor domains, **and Audience Interest Map for Parallel Tofu discovery**
+- **DataForSEO** → keyword research, competitor analysis, content gap identification, **parallel interest keyword validation**
+- **inblog-write-seo-post** → plan items become pre-filled topics for writing; **Parallel posts get soft CTA treatment**
 - **analytics** → performance data informs gap analysis and prioritization
-- **search-console** → own keyword data supplements D4S market data
+- **search-console** → own keyword data supplements D4S market data; **outlier keywords signal parallel interest opportunities**

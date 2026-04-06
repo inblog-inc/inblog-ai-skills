@@ -86,7 +86,47 @@ inblog search-console keywords --sort clicks --limit 10 --json
 | slug | Lowercase English, hyphen-separated, include keyword |
 | H2/H3 | Include keywords naturally |
 | Body | 1500+ chars minimum, keyword density 1-2% |
-| CTA | Place mid-body and at end |
+| CTA | Place mid-body and at end; also set post-level CTA via `--cta-text`/`--cta-link` |
+| JSON-LD | Generate Article schema; save to file, pass via `--json-ld-file` |
+
+#### JSON-LD Schema Generation
+
+Generate an Article JSON-LD schema for each post. Save to a temp file and pass via `--json-ld-file`:
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Post Title",
+  "description": "Meta description",
+  "author": { "@type": "Person", "name": "Author Name" },
+  "datePublished": "2026-03-30T09:00:00+09:00",
+  "publisher": { "@type": "Organization", "name": "Blog Name" },
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://blog.example.com/slug" }
+}
+```
+
+For other post types, use appropriate schemas: `HowTo`, `FAQPage`, `Product`, etc.
+
+#### Parallel Tofu Post Guidelines
+
+When writing a post marked as `PARALLEL` in the content plan:
+
+1. **CTA approach: Soft only**
+   - Do NOT use hard product CTAs ("Try [Product] free", "Sign up now")
+   - Acceptable: newsletter signup, "더 많은 인사이트 받기", social sharing prompt
+   - Exception: if the topic naturally connects to a product feature, ONE subtle mention is okay (e.g., "참고로 이 프로세스를 자동화하는 도구도 있습니다" with a link)
+   - Post-level CTA (`--cta-text`): use for newsletter/blog subscription, not product
+
+2. **Voice consistency**
+   - Write in the same brand voice as pillar content — the post should feel native
+   - The reader shouldn't sense that this is "off-topic filler"
+   - Reference the blog's domain expertise where natural ("우리 팀도 이 방식을 내부에서 활용하고 있는데...")
+
+3. **Bridge back to pillars**
+   - Include 1-2 internal links to related pillar posts
+   - End with a "관련 글" section linking to your core content
+   - This turns Parallel traffic into pillar readers
 
 #### Content Structure Templates
 
@@ -121,6 +161,11 @@ inblog posts create \
   --meta-description "150-160 char meta description" \
   --image ./cover.jpg \
   --content-file ./content.html \
+  --cta-text "Get started free" \
+  --cta-link "https://example.com/signup" \
+  --cta-color "#3B82F6" \
+  --cta-text-color "#FFFFFF" \
+  --json-ld-file ./article-schema.json \
   --json
 
 # 4. Connect tags/authors

@@ -64,9 +64,20 @@ inblog posts get <id> --include tags,authors --json
 
 # Create (--image for cover image, local files auto-upload)
 inblog posts create --title "Title" --slug "slug" --image ./cover.jpg --content-file /tmp/content.html --json
+inblog posts create --title "Title" --cta-text "Try free" --cta-link "https://..." --cta-color "#3B82F6" --json
 
 # Update
 inblog posts update <id> --title "New Title" --image ./new-cover.jpg --json
+
+# CTA settings
+inblog posts update <id> --cta-text "Get started" --cta-link "https://..." --cta-color "#3B82F6" --cta-text-color "#FFFFFF" --json
+inblog posts update <id> --cta-text "" --json                           # Remove CTA
+
+# Custom scripts (JSON-LD, head/body scripts)
+inblog posts update <id> --json-ld-file ./schema.json --json            # JSON-LD only
+inblog posts update <id> --custom-scripts-file ./scripts.json --json    # All scripts via JSON
+inblog posts update <id> --json-ld-file ./schema.json --custom-scripts-file ./analytics.json --json  # Combined
+inblog posts update <id> --remove-custom-scripts --json                 # Remove all scripts
 
 # Delete
 inblog posts delete <id> --json
@@ -119,11 +130,23 @@ inblog posts preview revoke <token> --json                    # Revoke token
 | `cta_link` | string | | CTA click URL |
 | `cta_color` | string | | CTA button color (hex) |
 | `cta_text_color` | string | | CTA text color (hex) |
-| `custom_scripts` | object | | `{ head_start_script, head_end_script, body_start_script, body_end_script, json_ld_script }` |
+| `custom_scripts` | object | | `{ head_start_script, head_end_script, body_start_script, body_end_script, json_ld_script }` — set via `--json-ld-file` or `--custom-scripts-file` |
 | `tag_ids` | number[] | | Connect tags on creation |
 | `author_ids` | string[] | | Connect authors on creation |
 
 **ID Type**: Post ID is integer (returned as string)
+
+**Custom Scripts JSON format** (`--custom-scripts-file`):
+```json
+{
+  "head_start_script": "<meta name=\"robots\" content=\"noindex\">",
+  "head_end_script": "<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">",
+  "body_start_script": null,
+  "body_end_script": "<script>/* analytics */</script>",
+  "json_ld_script": "{\"@context\":\"https://schema.org\",\"@type\":\"Article\"}"
+}
+```
+All fields optional. `--json-ld-file` takes a file with JSON-LD content only (the value for `json_ld_script`). When both flags are used, `--json-ld-file` overrides `json_ld_script` from the JSON file.
 
 ### Post-Tag Relationships
 

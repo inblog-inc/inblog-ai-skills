@@ -54,6 +54,47 @@ inblog posts update <id> --image ./cover.jpg
 inblog posts update <id> --image https://source.inblog.dev/...
 ```
 
+## CTA Settings
+
+```bash
+# Set CTA button
+inblog posts update <id> \
+  --cta-text "Get started free" \
+  --cta-link "https://example.com/signup" \
+  --cta-color "#3B82F6" \
+  --cta-text-color "#FFFFFF"
+
+# Also works on create
+inblog posts create --title "Title" --cta-text "Try now" --cta-link "https://..."
+
+# Remove CTA (pass empty string)
+inblog posts update <id> --cta-text "" --cta-link ""
+```
+
+## Custom Scripts & JSON-LD
+
+```bash
+# Set JSON-LD (from file — typically a .json or .jsonld file)
+inblog posts update <id> --json-ld-file ./article-schema.json
+
+# Set all custom scripts via JSON file
+# File format: { "head_start_script": "...", "head_end_script": "...",
+#                "body_start_script": "...", "body_end_script": "...",
+#                "json_ld_script": "..." }
+inblog posts update <id> --custom-scripts-file ./scripts.json
+
+# Combine: JSON-LD file + other scripts from JSON
+inblog posts update <id> --json-ld-file ./schema.json --custom-scripts-file ./scripts.json
+
+# Remove all custom scripts
+inblog posts update <id> --remove-custom-scripts
+```
+
+**Use cases:**
+- **JSON-LD**: Structured data for SEO (Article, FAQ, HowTo, Product schemas)
+- **head_end_script**: Custom fonts, preconnect hints, additional meta tags
+- **body_end_script**: Third-party analytics, tracking pixels, chat widgets
+
 ## Preview Before Publishing
 
 After editing a post, verify changes visually before publishing:

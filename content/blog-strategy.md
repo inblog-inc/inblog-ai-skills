@@ -71,12 +71,17 @@ When there is enough existing content to infer strategy from:
    - Infer target persona from the topics and depth level
    - Infer brand voice from writing style (formal/casual, technical depth, etc.)
    - Infer blog goal from CTA patterns, post types, funnel coverage
-6. Present the inferred strategy to the user for review
-7. Ask focused follow-up questions only for what can't be inferred:
+6. **Infer parallel interests:**
+   - Check GSC for outlier keywords that don't match any pillar — these are signals
+   - Look at the audience profile: what else do people in this role search for?
+   - Draft 3-5 parallel interest areas with tone fit assessment
+7. Present the inferred strategy to the user for review
+8. Ask focused follow-up questions only for what can't be inferred:
    - "I see your posts focus on X and Y — are these your main content pillars, or are there areas you want to expand into?"
    - "Your tone reads as [professional/casual] — is that intentional?"
    - "What's the primary conversion goal? I see [newsletter CTAs / demo links / ...]"
    - "Who are 2-3 content competitors you're aware of?"
+   - "제품 밖에서 타겟 고객이 관심 가질 만한 주제 — 예를 들어 [inferred parallel topics] — 이런 걸 블로그에 다루면 어떨까요?"
 
 ---
 
@@ -105,10 +110,38 @@ For each persona:
 | Pain points | "Hiring is slow, CI/CD is broken, team morale is low" |
 | Search behavior | "Googles specific error messages, reads HN, follows tech blogs" |
 | What convinces them | "Real-world case studies, benchmarks, code examples" |
+| **Parallel interests** | Topics they care about *beyond* our product domain (see below) |
+
+**3-A. Audience Interest Map (Parallel Tofu)**
+
+For each persona, map interests that are **not directly about the product** but:
+- The target audience actively searches for them
+- Publishing on our blog wouldn't feel off-brand
+- Brings in readers who match our ICP but aren't product-aware yet
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| Parallel interests | 3-5 adjacent topic areas | AI 업무 자동화, 리모트 팀 생산성, 데이터 리터러시 |
+| Watering holes | Where they consume content | GeekNews, 뉴닉, Twitter/X, Substack newsletters |
+| Trending concerns | Current hot topics in their world | AI replacing jobs, 경기 침체 대응, 시리즈 A 혹한기 |
+| Tone fit test | Would this topic feel natural on our blog? | "AI 생산성 팁" → fits / "육아 꿀팁" → doesn't fit |
+
+**How to discover parallel interests:**
+- Ask: "제품 외에 타겟 고객이 요즘 가장 많이 검색하거나 관심 갖는 주제가 뭐가 있을까요?"
+- Ask: "고객과 대화할 때 제품 얘기 말고 자주 나오는 화제가 있나요?"
+- If D4S configured: check what other topics the persona's "watering holes" rank for
+- If GSC available: look for outlier keywords that bring traffic but don't match any pillar — these hint at parallel interests the audience already associates with the blog
+
+**Tone fit filter** — a parallel topic passes if:
+1. Our blog voice (professional/casual/technical) can cover it naturally
+2. A reader wouldn't be confused seeing it alongside our pillar content
+3. It doesn't require expertise we can't credibly claim
 
 **4. Content pillars** (3-5 core topic areas)
 These are the blog's expertise domains. Every post should map to a pillar.
 Example: `[Engineering Culture, DevOps Best Practices, Product Updates, Industry Analysis]`
+
+> **Note:** Parallel Tofu topics are NOT pillars. They live alongside pillars as opportunistic content. The content-plan skill uses the Audience Interest Map to generate Parallel topic suggestions separately.
 
 **5. Brand voice**
 | Attribute | Options |
@@ -149,6 +182,7 @@ This gives concrete data: "Competitor X gets ~50k organic visits/month, ranks fo
 Generate a structured strategy document with:
 - Mission statement (1-2 sentences)
 - Persona profiles (discovered or inferred)
+- Audience Interest Map (parallel interests per persona, with tone fit)
 - Content pillars with descriptions
 - Brand voice guidelines
 - Conversion funnel & CTA strategy
@@ -234,6 +268,8 @@ When invoked with `/blog-strategy refresh`:
 ## Integration Points
 
 - **content-plan** reads strategy.md to align editorial calendar with pillars and personas
+- **content-plan** reads Audience Interest Map from strategy.md to generate Parallel Tofu topics
 - **content-plan** uses competitor domains from strategy for D4S content gap analysis
 - **inblog-write-seo-post** reads strategy.md for voice, persona, and CTA style
+- **inblog-write-seo-post** applies softer CTA approach for Parallel Tofu posts (brand awareness, not hard sell)
 - **DataForSEO** enriches competitor landscape with real traffic/keyword data (when configured)
