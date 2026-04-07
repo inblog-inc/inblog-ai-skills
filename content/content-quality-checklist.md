@@ -1,131 +1,190 @@
 ---
 name: inblog-content-quality-checklist
-description: "Content quality checklist. Must check before publishing. Triggers: '품질 체크', '발행 전 검토', '체크리스트', 'quality check', 'pre-publish review'"
+description: "Automated content quality scanner with GEO Citability Score. Triggers: '품질 체크', '발행 전 검토', '체크리스트', 'quality check', 'pre-publish review', 'GEO score'"
 ---
 
-# Content Quality Checklist
+# Content Quality Scanner
 
-Run this checklist after writing a post, before publishing.
+Automated quality assessment for posts before publishing. Accepts a post ID, runs all checks programmatically, and outputs a pass/fail report with specific fix actions.
+
+**User-invocable:** `/quality-check <post-id>`, `/quality-check` (latest draft)
+
+## Prerequisites
+
+```bash
+inblog auth status
+inblog blogs me --json  # → subdomain
+```
+
+## Automated Scanner Workflow
+
+### Step 1: Fetch Post Data
+
+```bash
+inblog posts get <post-id> --include tags,authors --json
+```
+
+Extract: `content_html`, `title`, `meta_title`, `meta_description`, `slug`, `image`, `tags`, `authors`, `cta_text`, `cta_link`, `custom_scripts.json_ld_script`, `published_at`.
+
+### Step 2: Run All Checks
+
+Analyze the fetched data against each check category. Score each check as ✅ Pass or ❌ Fail.
 
 ---
 
-## 1. Indexing Requirements (missing any = indexing risk)
+## Check Categories
 
-- [ ] Content length 3,000+ characters (Korean standard)
-- [ ] 3+ images (all with alt text)
-- [ ] 2+ internal links (anchor text includes target keyword)
-- [ ] meta_description set (150-160 chars, keyword + value proposition)
-- [ ] Cover image (image field) set (1200x630px recommended)
+### 1. Indexing Requirements (missing any = indexing risk)
 
-## 2. Ranking Competitiveness (for top positions)
+| Check | How to verify | Criteria |
+|-------|--------------|----------|
+| Content length | Count characters in `content_html` (strip tags) | 3,000+ chars |
+| Image count | Count `<img` and `data-type="imageBlock"` tags | 3+ images |
+| Alt text | Check each `<img>` has non-empty `alt` attribute | 100% have alt |
+| Internal links | Count `<a href>` pointing to same domain | 2+ internal links |
+| meta_description | Check field length | 150-160 chars, non-empty |
+| Cover image | Check `image` field exists | Must be set |
 
-- [ ] Competitive keywords: 5,000+ chars content
-- [ ] meta_title set (different from title, SERP-optimized version, under 60 chars)
-- [ ] author_ids connected (E-E-A-T: expertise signal)
-- [ ] JSON-LD structured data (Article or HowTo schema)
-- [ ] 4+ content block types used (p, list, code, table, callout, etc.)
-- [ ] 2+ external authoritative links (citing sources)
-- [ ] H2→H3→H4 hierarchy (no H3-only usage, question-format headings recommended)
+### 2. Ranking Competitiveness
 
-## 3. AI Citability
+| Check | How to verify | Criteria |
+|-------|--------------|----------|
+| Competitive content length | Strip tags, count chars | 5,000+ chars for competitive keywords |
+| meta_title | Check field exists and differs from title | Set, under 60 chars |
+| Author connected | Check `authors` array | 1+ author (E-E-A-T signal) |
+| JSON-LD | Check `custom_scripts.json_ld_script` | Must be present |
+| Content block types | Count distinct block types (p, list, code, table, callout, etc.) | 4+ types |
+| External links | Count `<a href>` to external domains | 2+ authoritative links |
+| Heading hierarchy | Parse headings: h2 → h3 → h4 only | No hierarchy violations |
 
-For AI search platforms (ChatGPT, Perplexity, Gemini, etc.) to cite your content, it needs extractable structure.
+### 3. AI Citability
 
-### Answer-First Structure
-- [ ] First 1-2 sentences of each H2 section = core answer (explanation follows)
-- [ ] Definition pattern used: "X is [definition]" / "X refers to [explanation]"
-- [ ] Specific numbers/data included ("50% average improvement", "3 methods", etc.)
+| Check | How to verify | Criteria |
+|-------|--------------|----------|
+| Answer-first structure | First `<p>` after each `<h2>` must be 50-150 words | 80%+ sections comply |
+| Definition patterns | Look for "X is [definition]" patterns | 1+ definition present |
+| Specific numbers | Count concrete numbers/statistics | 3+ data points |
+| Paragraph structure | Each `<p>` is 2-4 sentences, one idea | 80%+ paragraphs comply |
+| Comparison tables | If comparison content exists, check for `<table>` | All comparisons use tables |
+| Key claims position | Check if stats/data appear in top 30% of content | At least 2 in top 30% |
 
-### Paragraph Structure
-- [ ] 2-4 sentences per paragraph (1 sentence = weak, 5+ = hard to extract)
-- [ ] One paragraph = one idea (no topic mixing)
-- [ ] Each paragraph makes sense when extracted independently
-- [ ] Key claims placed in first sentence of paragraph
+### 4. E-E-A-T Signals
 
-### Comparison/List Structure
-- [ ] Comparison content: organized in table format (AI cites tables well)
-- [ ] Procedural content: numbered ordered lists
+| Check | How to verify | Criteria |
+|-------|--------------|----------|
+| First-person experience | Scan for "우리", "저희", "직접", "our", "we tested" | Present |
+| Specific case data | Look for metrics, percentages, named examples | Present |
+| Author profile | Check `.inblog/{subdomain}/authors/{id}.md` exists | Has expertise info |
+| External citations | Count references to official docs, research, reports | 2+ citations |
+| Trade-offs acknowledged | Scan for balanced language ("however", "하지만", "단점") | Present |
 
-## 4. E-E-A-T Signals (content trustworthiness)
+### 5. AI Content Quality Signals
 
-### Experience
-- [ ] First-person experience mentioned ("After testing this directly...", "In our team's case...")
-- [ ] Specific case results/metrics included (real data, not abstract advice)
-- [ ] Screenshots, charts, or other evidence of direct experience
+| Check | How to verify | Criteria |
+|-------|--------------|----------|
+| No AI-style openings | First `<p>` doesn't start with clichés | No "In today's rapidly changing..." |
+| No filler transitions | Scan for "It's worth noting", "Interestingly", "It depends on various factors" | None found |
+| Original data | Content contains unique insights/data | Present (manual assessment) |
+| Actionable advice | Specific actions, not vague guidance | Present (manual assessment) |
 
-### Expertise
-- [ ] Appropriate technical depth for the topic (avoid superficial explanations)
-- [ ] Data-backed claims (statistics, research citations)
-- [ ] Accurate use of terminology (define on first use)
+### 6. Content Freshness
 
-### Authoritativeness
-- [ ] Author profile connected (author_ids)
-- [ ] External authoritative sources cited (official docs, research papers, industry reports)
+| Check | How to verify | Criteria |
+|-------|--------------|----------|
+| published_at set | Check field | Must be specific date |
+| Date-specific info | Scan for year references ("2024", "올해") | Matches current year |
+| No vague timing | Scan for "latest", "current", "최근" without dates | None found |
 
-### Trustworthiness
-- [ ] Sources cited for claims (links or references)
-- [ ] Trade-offs acknowledged ("This method works well for X, but Z is better for Y")
-- [ ] Time-specific info has clear dates (published_at set)
+### 7. Post Metadata Final Check
 
-## 5. AI Content Quality
+| Check | How to verify | Criteria |
+|-------|--------------|----------|
+| title | Check length, keyword presence | Under 60 chars, keyword near front |
+| meta_title | Check differs from title | SERP-optimized version |
+| meta_description | Check length and content | 150-160 chars, keyword + value prop |
+| slug | Check format | Lowercase + hyphens, includes keyword |
+| Cover image | Check `image` field | Set (1200x630px recommended) |
+| Tags | Check `tags` array | 3-5 tags connected |
+| CTA | Check `cta_text` + `cta_link` | Customized to post topic |
 
-### High-Quality Signals (should be present)
-- [ ] Original data/insights: information not available elsewhere
-- [ ] Specific examples: cases with names, numbers, dates (not abstract)
-- [ ] Expert judgment: opinions/recommendations, not just fact listing
-- [ ] Actionable advice: specific actions, not vague guidance
+### 8. Visual Preview (manual step)
 
-### Low-Quality Signals (should NOT be present)
-- [ ] No "In today's rapidly changing world..." type AI-style openings
-- [ ] No "It's worth noting that...", "Interestingly..." meaningless transitions
-- [ ] No identical ending pattern across all sections
-- [ ] No "It depends on various factors" vague hedging
-- [ ] No filler paragraphs that add no information when removed
+After automated checks pass, verify visually:
+- Open preview URL with `claude-in-chrome` and screenshot
+- All images load, code blocks render, tables display correctly
+- No layout overflow or misalignment
 
-## 6. Derivative Content Additional Checks
-
-For content based on external sources:
-
-- [ ] 50%+ original content vs. source
-- [ ] canonical_url decision made (skip if sufficiently original)
-- [ ] Different heading structure from source
-- [ ] Local market data/cases or independent analysis included
-- [ ] Source cited via callout + bookmark link
-
-## 7. Content Freshness
-
-- [ ] published_at set (specific date, no vague "recently" expressions)
-- [ ] Time-dependent info includes year/date ("as of 2026", "March 2026")
-- [ ] Use specific dates instead of "latest", "current", "this year"
-
-## 8. Post Metadata Final Check
-
-- [ ] title (under 60 chars, primary keyword near front)
-- [ ] meta_title (SERP-optimized version, different from title)
-- [ ] meta_description (150-160 chars, keyword + value prop + call to action)
-- [ ] slug (lowercase+hyphens, no stop words, includes keyword)
-- [ ] image field (cover/OG image, 1200x630px)
-- [ ] author_ids connected
-- [ ] tag_ids connected (3-5 tags)
-- [ ] cta_text + cta_link (customized to post topic)
-
-## 9. Visual Preview Verification
-
-Use the preview link from `inblog posts preview <id>` or the auto-generated link from create/update.
-
-- [ ] Open preview URL with `claude-in-chrome` and screenshot
-- [ ] All images load (no broken image icons)
-- [ ] Cover image displays correctly
-- [ ] Code blocks and tables render properly
-- [ ] Callout blocks and special elements display correctly
-- [ ] Text is readable (font size, line spacing, contrast)
-- [ ] No layout overflow or misalignment
-
-## 10. Series Post Repetition Prevention
+### 9. Series Post Repetition Prevention
 
 For posts in the same series/campaign:
+- No identical template structure repeated 3+ times
+- CTA copy customized per post
+- Sentence structure variation
 
-- [ ] No identical template structure repeated 3+ times
-- [ ] Fixed section names (e.g., "Team Commentary") varied per post
-- [ ] CTA copy customized per post (no same CTA for 5+ posts)
-- [ ] Sentence structure variation (not all declarative sentences)
+---
+
+## Step 3: GEO Citability Score (0-100)
+
+Calculate a composite score measuring how likely AI systems are to cite this content:
+
+| Component | Weight | Scoring |
+|-----------|--------|---------|
+| **Paragraph chunk size** | 20 pts | % of paragraphs that are 50-150 words × 20 |
+| **Answer-first structure** | 20 pts | % of H2 sections with answer-first opening × 20 |
+| **Comparison table usage** | 15 pts | If comparison content exists: table present = 15, no table = 0. If no comparison content: 15 (not applicable) |
+| **Definition patterns** | 15 pts | 0 definitions = 0, 1 = 5, 2 = 10, 3+ = 15 |
+| **Numeric/data density** | 15 pts | 0-1 data points = 0, 2-3 = 5, 4-6 = 10, 7+ = 15 |
+| **Key claims front-loaded** | 15 pts | % of stats/numbers in top 30% of content × 15 |
+
+**Score interpretation:**
+
+| Range | Rating | Action |
+|-------|--------|--------|
+| 80-100 | Excellent | Ready for GEO |
+| 60-79 | Good | Minor improvements recommended |
+| 40-59 | Needs work | Review GEO Content Structure Rules |
+| 0-39 | Poor | Significant restructuring needed |
+
+---
+
+## Step 4: Output Report
+
+Present results as a structured report:
+
+```
+📋 Quality Report: "{post title}" (ID: {id})
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Indexing Requirements    ✅ 5/5 passed
+Ranking Competitiveness  ⚠️ 5/6 passed (missing: JSON-LD)
+AI Citability           ✅ 6/6 passed
+E-E-A-T Signals         ⚠️ 4/5 passed (missing: external citations)
+AI Content Quality      ✅ 4/4 passed
+Content Freshness       ✅ 3/3 passed
+Metadata               ✅ 7/7 passed
+
+GEO Citability Score: 78/100 (Good)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Fix Required:
+1. ❌ JSON-LD structured data missing
+   → Generate Article schema with `inblog-schema-manager` skill
+2. ⚠️ Only 1 external citation found (need 2+)
+   → Add authoritative source links
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**Offer next actions:**
+- Fix specific issues → apply via `inblog posts update`
+- Run `inblog-geo-optimizer` for GEO score < 60
+- Run `inblog-copy-editor` for AI Content Quality failures (Seven Sweeps method)
+- Proceed to visual preview if all critical checks pass
+
+## Integration Points
+
+- **write-seo-post** → runs this checklist after Phase 2 content generation
+- **autopilot** → triggers this for draft posts pending review (P8)
+- **geo-optimizer** → called when GEO Citability Score < 60
+- **copy-editor** → called when AI Content Quality checks fail (Seven Sweeps for prose improvement)
+- **schema-manager** → called when JSON-LD check fails
+- **manage-posts** → applies fixes via post update

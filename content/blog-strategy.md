@@ -49,6 +49,30 @@ inblog posts list --published --limit 100 --page 2 --include tags --json
 # → Merge all pages, save to .inblog/{subdomain}/cache/posts.json
 ```
 
+**Brand Search Volume Baseline**
+
+Measure current brand search volume as a baseline metric:
+
+1. If DataForSEO is configured (`.inblog/config.json` → `dataforseo`):
+   ```
+   POST https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live
+   → Query: brand name, brand name + product, common brand misspellings
+   → Record: monthly search volume, trend direction
+   ```
+2. Save baseline in strategy.md under a `## Brand Search Volume` section:
+   ```markdown
+   ## Brand Search Volume
+   - Brand keyword: "{brand name}" — {volume}/month (as of {date})
+   - Trend: {increasing/stable/decreasing}
+   ```
+3. **Why this matters:** Brand search volume is the strongest predictor of LLM citation (0.334 correlation). Tracking it over time shows whether content efforts are building brand awareness.
+4. If DataForSEO is not configured, note the gap in strategy.md:
+   ```markdown
+   ## Brand Search Volume
+   - ⚠️ DataForSEO not configured — unable to measure automatically
+   - Manual lookup recommended: search Google Keyword Planner or Ahrefs for "{brand name}"
+   ```
+
 ---
 
 **Track A: Scan-first (5+ published posts exist)**
@@ -137,6 +161,65 @@ For each persona, map interests that are **not directly about the product** but:
 2. A reader wouldn't be confused seeing it alongside our pillar content
 3. It doesn't require expertise we can't credibly claim
 
+**3-B. Voice of Customer (VoC) Collection**
+
+Collect the actual language your target customers use — not polished marketing terms, but the raw words they type into search bars, write in reviews, and say in conversations.
+
+**Why this matters:** Content that mirrors customer language ranks better (keyword match), converts better (reader feels understood), and gets cited more by AI systems (natural phrasing).
+
+**Sources to mine:**
+
+| Source | What to extract | How to access |
+|--------|----------------|---------------|
+| G2/Capterra reviews | Pain point descriptions, feature language, complaints | Browse competitor product reviews |
+| Reddit/community | Questions, frustrations, terminology | Search relevant subreddits |
+| Support tickets | Common problem descriptions | Ask user: "고객이 문의할 때 자주 쓰는 표현이 뭐가 있나요?" |
+| Sales call notes | Objections, decision criteria, how they describe the problem | Ask user: "세일즈 콜에서 고객이 자주 하는 말이 있나요?" |
+| Search Console | Actual search queries that bring traffic | `inblog search-console keywords --sort impressions --limit 30 --json` |
+| Customer interviews | Goals, workflows, pain points in their own words | Ask user for key quotes or patterns |
+
+**Collection process:**
+
+1. **Ask the user** (most valuable):
+   - "고객이 이 문제를 설명할 때 어떤 단어를 쓰나요? 마케팅 용어 말고 실제 표현으로요"
+   - "고객 리뷰나 서포트 티켓에서 반복되는 표현이 있나요?"
+   - "세일즈 미팅에서 고객이 자주 하는 질문 3가지가 뭔가요?"
+
+2. **Mine digital sources** (if user can share or if public):
+   - Search G2/Capterra for competitor reviews → extract recurring phrases
+   - Check relevant Reddit communities → note how users describe problems
+   - Review GSC queries → actual search terms people use to find the blog
+
+3. **Organize into a language dictionary:**
+
+```markdown
+## Voice of Customer
+
+### Pain Point Language
+- "{exact customer phrase}" — context: {where this was found}
+- "{exact customer phrase}" — context: {source}
+
+### Goal Language (how they describe what they want)
+- "{exact phrase}" — context: {source}
+
+### Feature/Solution Language (words they use for our category)
+- "{exact phrase}" instead of "{our marketing term}"
+
+### Common Questions (verbatim)
+- "{exact question}?"
+- "{exact question}?"
+
+### Emotional Triggers (what frustrates/excites them)
+- Frustration: "{phrase}" — when {situation}
+- Excitement: "{phrase}" — when {situation}
+```
+
+**How other skills use VoC:**
+- `inblog-write-seo-post`: Use customer language in titles, H2s, and opening paragraphs
+- `inblog-copy-editor`: Sweep 2 (Voice) references VoC for authentic tone
+- `inblog-content-plan`: VoC phrases inform keyword research and topic ideation
+- `inblog-social-repurpose`: Hooks use customer language for relatability
+
 **4. Content pillars** (3-5 core topic areas)
 These are the blog's expertise domains. Every post should map to a pillar.
 Example: `[Engineering Culture, DevOps Best Practices, Product Updates, Industry Analysis]`
@@ -187,6 +270,29 @@ Generate a structured strategy document with:
 - Brand voice guidelines
 - Conversion funnel & CTA strategy
 - Competitive differentiation angle
+
+**E-E-A-T Gap Analysis**
+
+Evaluate the blog's E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) signals and flag gaps:
+
+| Signal | What to check | How to check |
+|--------|--------------|-------------|
+| **Experience** | First-person experience markers in posts | Scan existing posts for phrases like "we built", "in our experience", "when we tested" |
+| **Expertise** | Author profiles with credentials | Check `.inblog/{subdomain}/authors/` — do profiles exist? Do they include role, background, qualifications? |
+| **Authoritativeness** | sameAs links to external profiles | Check author profiles for LinkedIn, Twitter/X, GitHub, personal site links |
+| **Trustworthiness** | External authority citations | Scan posts for outbound links to authoritative sources (research, official docs, industry reports) |
+
+**Gap assessment output** (include in strategy.md):
+```markdown
+## E-E-A-T Assessment
+- Experience: ✅ Posts include first-person case studies and real examples
+- Expertise: ⚠️ Author profiles exist but lack credentials/bio
+  → Recommendation: Add professional background, certifications, years of experience to author profiles
+- Authoritativeness: ❌ No sameAs links found
+  → Recommendation: Add LinkedIn and Twitter/X profile URLs to author profiles
+- Trustworthiness: ⚠️ Only 30% of posts cite external sources
+  → Recommendation: Include 2-3 authoritative external links per post (research, official docs, industry data)
+```
 
 **Track A:** Present the inferred draft → user confirms/corrects → finalize.
 **Track B:** Synthesize from interview answers → present draft → user reviews.
@@ -268,6 +374,7 @@ When invoked with `/blog-strategy refresh`:
 ## Integration Points
 
 - **content-plan** reads strategy.md to align editorial calendar with pillars and personas
+- **content-plan** reads Voice of Customer from strategy.md to inform keyword research and topic angles
 - **content-plan** reads Audience Interest Map from strategy.md to generate Parallel Tofu topics
 - **content-plan** uses competitor domains from strategy for D4S content gap analysis
 - **inblog-write-seo-post** reads strategy.md for voice, persona, and CTA style

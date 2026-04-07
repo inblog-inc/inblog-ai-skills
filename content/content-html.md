@@ -160,9 +160,53 @@ External URLs are auto-uploaded to R2 by the server. Use `preserve_external_imag
 4. Block elements laid out flat — no nesting custom blocks inside custom blocks
 5. Content is a sequence of block elements: `<h2>`, `<p>`, `<pre>`, `<ul>`, `<blockquote>`, `<div data-type="...">`, etc.
 
+### GEO-Native Content Structure
+
+Content must be structured for AI citation (GEO = Generative Engine Optimization). These rules increase AI citation probability by 2.3x:
+
+**1. Answer-first paragraphs** — Each H2 section's first `<p>` must be a self-contained answer (50-150 words) that makes sense when extracted independently.
+
+```html
+<!-- ❌ BAD: Filler intro -->
+<h2>What Is Keyword Cannibalization?</h2>
+<p>In the world of SEO, there are many concepts that website owners need to understand. One of the most important yet overlooked concepts is something called keyword cannibalization. Let's explore what this means.</p>
+
+<!-- ✅ GOOD: Answer-first, self-contained (English) -->
+<h2>What Is Keyword Cannibalization?</h2>
+<p>Keyword cannibalization occurs when multiple pages on the same website compete for the same search query, causing Google to split ranking signals between them. This typically results in both pages ranking lower than a single consolidated page would. Studies show cannibalization can reduce organic traffic by 10-50% for affected keywords.</p>
+
+<!-- ✅ GOOD: Answer-first, self-contained (Korean) -->
+<h2>내부 링크란 무엇인가?</h2>
+<p>내부 링크는 같은 웹사이트 내 다른 페이지로 연결하는 하이퍼링크를 말합니다. 검색 엔진은 내부 링크를 통해 사이트 구조를 이해하고, 페이지 간 권위(authority)를 분배합니다. Ahrefs 연구에 따르면 내부 링크가 3개 이상인 페이지는 그렇지 않은 페이지 대비 평균 40% 높은 순위를 기록합니다.</p>
+```
+
+**2. Self-contained chunks** — Each paragraph = one idea, independently extractable. 2-4 sentences per paragraph.
+
+**3. Comparison content = tables** — Any comparison MUST include a `<table>`. Tables have 2.8x higher AI citation rate than prose comparisons.
+
+```html
+<!-- ❌ BAD: Comparison as prose -->
+<p>Tool A costs $29/month and supports 10 users, while Tool B costs $49/month and supports unlimited users...</p>
+
+<!-- ✅ GOOD: Comparison as table -->
+<table>
+  <thead>
+    <tr><th>Feature</th><th>Tool A</th><th>Tool B</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Price</td><td>$29/month</td><td>$49/month</td></tr>
+    <tr><td>Users</td><td>10</td><td>Unlimited</td></tr>
+  </tbody>
+</table>
+```
+
+**4. Front-load statistics** — Place concrete numbers, data, and definitions in the top 30% of the post. 44.2% of ChatGPT citations come from the top 30% of content.
+
+**5. Definition patterns** — Use explicit "X is [definition]" patterns. These are the most extractable format for AI systems.
+
 ### SEO
 - Include primary keywords in H2/H3
-- Short paragraphs (3-4 sentences)
+- Short paragraphs (2-4 sentences per paragraph, 50-150 words per chunk)
 - Use lists/bullets generously
 - Include internal links
 - Always add alt text to images

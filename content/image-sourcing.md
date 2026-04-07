@@ -355,6 +355,57 @@ Source photo URLs before sending to Gemini. **Don't grab random stock photos.**
 3. **Run Verify loop per slide** — also check cross-slide consistency
 4. **Batch upload**: `inblog images upload /tmp/slide-*.png`
 5. **Insert**: Use `imageCarousel` in post content
+
+---
+
+## Auto Alt Text Generation
+
+When uploading or inserting images into posts, automatically generate SEO-optimized alt text using Gemini vision.
+
+### Workflow
+
+1. **After image upload, before inserting into content_html**, send the image to Gemini for alt text generation:
+   ```python
+   import base64, json, urllib.request, os
+
+   api_key = os.environ["GEMINI_API_KEY"]
+   with open("/tmp/image.png", "rb") as f:
+       img_b64 = base64.b64encode(f.read()).decode()
+
+   body = json.dumps({
+       "contents": [{"parts": [
+           {"inline_data": {"mime_type": "image/png", "data": img_b64}},
+           {"text": "Generate SEO-optimized alt text for this image. Target keyword for the post: \"{target_keyword}\". Rules: 1) Describe what the image shows. 2) Naturally include the target keyword if relevant — do not force it. 3) Add context about how it relates to the post topic. 4) Maximum 125 characters. 5) Do not start with 'Image of' or 'Photo of'. Output ONLY the alt text, nothing else."}
+       ]}],
+       "generationConfig": {"temperature": 0.3, "maxOutputTokens": 256}
+   }).encode()
+
+   url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+   req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+   resp = json.loads(urllib.request.urlopen(req).read())
+   alt_text = resp["candidates"][0]["content"]["parts"][0]["text"].strip()
+   ```
+
+2. **Alt text quality rules:**
+   - Descriptive: what the image actually shows (not generic)
+   - Contextual: how it relates to the post's topic
+   - Keyword-aware: naturally include the post's target keyword when relevant — do not force it
+   - Maximum 125 characters
+   - Do not start with "Image of" or "Photo of"
+
+3. **Integration into image insertion:**
+   - After uploading via `inblog images upload`, generate alt text before building the HTML tag
+   - Use the generated alt text in the `alt` attribute:
+     ```html
+     <img data-type="imageBlock" src="CDN_URL" alt="{generated_alt_text}" width="800">
+     ```
+   - For cover/OG images: store the alt text for use in social sharing metadata
+
+4. **Fallback (no Gemini API key):**
+   - Write alt text manually based on the image context and target keyword
+   - Format: `{what the image shows} — {post topic context}`
+   - Example: `"Google Search Console performance dashboard showing keyword rankings"`
+
 ---
 
 ## Cross-References

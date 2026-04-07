@@ -71,11 +71,44 @@ inblog search-console keywords --sort clicks --limit 10 --json
 - Suggest topics/keywords based on existing performance data
 - After user selects, continue to Phase 2
 
+### Phase 1.5: SERP Intent Analysis (optional)
+
+Before writing, analyze what Google currently rewards for the target keyword:
+
+```bash
+# If DataForSEO configured (.inblog/config.json → dataforseo):
+POST https://api.dataforseo.com/v3/serp/google/organic/live/advanced
+# Body: { "keyword": "<target keyword>", "language_code": "ko", "location_code": 2410, "depth": 10 }
+```
+
+**Extract the Three Cs from top 10 results:**
+
+| Dimension | What to look for | Example |
+|-----------|-----------------|---------|
+| **Content type** | Blog post, landing page, tool, video | "Top 8 results are blog posts" |
+| **Content format** | How-to, listicle, guide, comparison, opinion | "7/10 are listicles" |
+| **Content angle** | Fresh, beginner, comprehensive, data-driven | "Most target beginners" |
+
+**Auto-adjust post format** to match the dominant pattern. If 7/10 results are listicles, write a listicle. If most are guides, write a guide.
+
+If DataForSEO is not configured, skip this phase gracefully. Proceed with user-specified or default format.
+
 ### Phase 2: Outline & Content Generation
 
 1. Write SEO-optimized outline (H2/H3 structure)
 2. Confirm with user, then generate HTML content
 3. **Must follow `inblog-content-html` skill rules**
+
+#### GEO Content Structure Rules
+
+**All content must follow these GEO-friendly structure rules** (increases AI citation probability by 2.3x):
+
+1. **Answer-first paragraphs:** Every H2 section must START with a 50-150 word self-contained answer paragraph. This paragraph should make sense when extracted independently by an AI system.
+2. **Self-contained chunks:** Each paragraph = one idea. No topic mixing. Each paragraph should be independently extractable and meaningful.
+3. **Comparison = table:** Any comparison content MUST include a `<table>` element (not just prose). Tables have 2.8x higher AI citation rate.
+4. **Front-load data:** Place citable statistics, numbers, and definitions in the top 30% of the post. 44.2% of ChatGPT citations come from the top 30% of a page.
+5. **Definition patterns:** Use explicit definition patterns — "X is [definition]" / "X refers to [explanation]" — these are highly extractable by AI.
+6. **Short, direct opening:** No filler intros ("In today's rapidly changing world..."). Lead with substance.
 
 #### SEO Optimization Guide
 
@@ -86,8 +119,21 @@ inblog search-console keywords --sort clicks --limit 10 --json
 | slug | Lowercase English, hyphen-separated, include keyword |
 | H2/H3 | Include keywords naturally |
 | Body | 1500+ chars minimum, keyword density 1-2% |
-| CTA | Place mid-body and at end; also set post-level CTA via `--cta-text`/`--cta-link` |
-| JSON-LD | Generate Article schema; save to file, pass via `--json-ld-file` |
+| CTA | Intensity based on Business Potential Score (see below); set via `--cta-text`/`--cta-link` |
+| JSON-LD | Generate Article schema with Person sameAs; save to file, pass via `--json-ld-file` |
+
+#### Business Potential Score → CTA Intensity
+
+If the post is from a content plan, use the Business Potential (BP) Score to calibrate CTA aggressiveness:
+
+| BP Score | Meaning | CTA Approach |
+|----------|---------|-------------|
+| 3 | Product is the core solution | Aggressive: mid-body callout + conclusion CTA + post-level CTA |
+| 2 | Product is useful but not unique | Moderate: conclusion CTA + post-level CTA |
+| 1 | Product can be mentioned indirectly | Soft: one native mention + newsletter CTA |
+| 0 | No product connection | Brand only: newsletter signup or social CTA |
+
+If BP Score is not specified in the plan, infer from topic-product relevance using `business.md`.
 
 #### JSON-LD Schema Generation
 
@@ -99,14 +145,33 @@ Generate an Article JSON-LD schema for each post. Save to a temp file and pass v
   "@type": "Article",
   "headline": "Post Title",
   "description": "Meta description",
-  "author": { "@type": "Person", "name": "Author Name" },
+  "author": {
+    "@type": "Person",
+    "name": "Author Name",
+    "sameAs": [
+      "https://linkedin.com/in/author",
+      "https://twitter.com/author"
+    ]
+  },
   "datePublished": "2026-03-30T09:00:00+09:00",
-  "publisher": { "@type": "Organization", "name": "Blog Name" },
+  "dateModified": "2026-03-30T09:00:00+09:00",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Blog Name",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://source.inblog.dev/logo.png"
+    }
+  },
   "mainEntityOfPage": { "@type": "WebPage", "@id": "https://blog.example.com/slug" }
 }
 ```
 
-For other post types, use appropriate schemas: `HowTo`, `FAQPage`, `Product`, etc.
+**Author sameAs links:** Read from `.inblog/{subdomain}/authors/{author-id}.md` → if author has LinkedIn, Twitter, GitHub, etc., include them in the `sameAs` array. This strengthens E-E-A-T signals.
+
+**Publisher logo:** Read from `inblog blogs me --json` → `logo_url` field.
+
+For other post types, use appropriate schemas: `HowTo`, `FAQPage`, `Product`, etc. See `inblog-schema-manager` skill for automatic schema type detection.
 
 #### Parallel Tofu Post Guidelines
 
@@ -141,6 +206,29 @@ When writing a post marked as `PARALLEL` in the content plan:
 
 **Case Study:**
 - Background → Challenge → Process → Results/metrics → CTA
+
+**Comparison/Alternative:**
+- Use `inblog-comparison-content` skill — specialized workflow with 4 formats, required comparison tables, and honesty-first positioning
+
+#### Content Uniqueness Check
+
+Before finalizing the post, check for potential duplication with existing content:
+
+```bash
+# Fetch published posts (use cache if fresh)
+# Read .inblog/{subdomain}/cache/posts.json or:
+inblog posts list --published --limit 100 --include tags --json
+```
+
+**Check for:**
+- **Similar titles:** >60% word overlap with existing post title → warn
+- **Overlapping H2s:** 3+ identical or near-identical H2 headings → warn
+- **Same target keyword:** Another post already targets this exact keyword → warn (cannibalization risk)
+
+**If duplication detected:**
+- Alert the user with the conflicting post(s)
+- Suggest: differentiate (change angle/depth) OR consolidate (update existing post instead)
+- Reference `inblog-content-cannibalization` skill for resolution
 
 ### Phase 3: API Calls
 
@@ -196,6 +284,13 @@ Before publishing, verify the post visually:
    - New preview link is generated automatically — verify again
 5. If everything looks good, proceed to publish
 
+### Phase 3.7: Copy Editing (optional)
+
+If the user requests higher quality or the content feels AI-generic:
+- Run `inblog-copy-editor` Seven Sweeps on the generated content
+- Particularly useful sweeps: Clarity (1), Voice (2), Specificity (5)
+- Apply changes before publishing
+
 ### Phase 4: Completion
 
 After publishing, provide links:
@@ -203,6 +298,12 @@ After publishing, provide links:
 - **Editor:** `https://inblog.ai/dashboard/{subdomain}/{postId}`
 - **Public URL:** `https://{subdomain}.inblog.io/{slug}`
 - With custom domain: `https://{custom_domain}/{slug}`
+
+**Offer social repurposing:**
+```
+Post published! Want to create social content from this post?
+→ Run /social-repurpose {post-id} to generate LinkedIn, Twitter/X, and Instagram content
+```
 
 ## Image Handling
 

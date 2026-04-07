@@ -101,6 +101,71 @@ Naturally connect analysis results to next actions:
 | Content gaps identified | "Update your content plan?" | `inblog-content-plan` |
 | Search Console not connected | "Connect Search Console?" | `inblog-setup-blog` |
 
+### "Content decay detection" (new)
+
+Identifies posts losing traffic or search position — candidates for refresh.
+
+```bash
+# Current period (last 28 days)
+inblog analytics posts --sort visits --limit 100 --include title --json
+
+# Compare with previous period
+inblog analytics compare --json
+
+# GSC keyword/page data for position tracking
+inblog search-console keywords --sort impressions --limit 100 --json
+inblog search-console pages --sort clicks --limit 100 --json
+
+# All published posts (for update date check)
+inblog posts list --published --limit 100 --json
+```
+
+**Decay detection criteria:**
+
+| Signal | Threshold | Severity |
+|--------|-----------|----------|
+| 28d traffic < 70% of previous 28d | >30% decline | High |
+| GSC average position dropped 3+ | Position regression | High |
+| Not updated in 180+ days | Stale content | Medium |
+| High impressions + declining CTR | Losing snippet appeal | Medium |
+| Date-specific claims with old year ("2024년") | Outdated | Medium |
+
+**Output: Prioritized decay report**
+
+```
+📉 Content Decay Report
+━━━━━━━━━━━━━━━━━━━━━━━
+
+High Priority:
+1. "Kubernetes 모니터링 가이드" (ID: 42)
+   Traffic: 2,100 → 890 (-58%)  |  Position: 5.2 → 9.8  |  Last updated: 180 days ago
+   → Action: Refresh (update stats, add new tools section)
+
+2. "GraphQL vs REST 비교" (ID: 31)
+   Traffic: 1,500 → 980 (-35%)  |  Position: 3.1 → 6.4  |  Last updated: 210 days ago
+   → Action: Refresh (update comparison table, add 2026 benchmarks)
+
+Medium Priority:
+3. "CI/CD 파이프라인 구축" (ID: 28)
+   Traffic: stable  |  Position: stable  |  Last updated: 240 days ago
+   → Action: Preventive refresh (content aging risk)
+```
+
+**Next action:** Offer to run `inblog-content-refresh` skill on the top candidates.
+
+## Analytics → Action Connections (updated)
+
+| Insight | Suggested Action | Connected Skill |
+|---------|-----------------|----------------|
+| Opportunity keyword found | "Write a new post targeting this keyword?" | `inblog-write-seo-post` |
+| Low CTR post | "Improve the meta_description?" | `inblog-manage-posts` |
+| Low CVR post | "Add a CTA?" | `inblog-manage-posts` |
+| High-performing topic | "Write a follow-up on this topic?" | `inblog-write-seo-post` |
+| Content decay detected | "Refresh this declining post?" | `inblog-content-refresh` |
+| Keyword cannibalization | "Multiple posts competing for same keyword" | `inblog-content-cannibalization` |
+| Content gaps identified | "Update your content plan?" | `inblog-content-plan` |
+| Search Console not connected | "Connect Search Console?" | `inblog-setup-blog` |
+
 ## Date Ranges
 
 - Default: last 28 days

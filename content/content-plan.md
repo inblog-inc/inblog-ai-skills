@@ -129,6 +129,16 @@ If D4S is not configured, fall back to GSC data only. If neither is available, p
 
 Perform the following analysis using gathered data:
 
+**Refresh candidates** (Freshness-First)
+- Cross-reference published posts with analytics data:
+  - Posts with 90+ day traffic decline (28d traffic < 70% of previous 28d)
+  - Posts with GSC position drop of 3+ positions
+  - Posts not updated in 180+ days
+  - Posts with date-specific claims ("2024년", "올해") that are outdated
+- Include top refresh candidates in the editorial calendar as refresh tasks
+- Target **80/20 split**: 80% consistent velocity (new + refresh), 20% special authority pieces
+- For detailed refresh execution, reference `inblog-content-refresh` skill
+
 **Pillar gap analysis**
 - Map existing posts to content pillars from strategy
 - Identify pillars with few or no posts
@@ -140,6 +150,12 @@ Perform the following analysis using gathered data:
   - **BOFU** (Bottom of Funnel): Case studies, demos, purchase-intent content
   - **PARALLEL** (Parallel Tofu): Adjacent topics that attract ICP but aren't product-focused
 - Flag imbalances (e.g., all TOFU, no MOFU/BOFU, no PARALLEL)
+
+**Customer language integration**
+- Read `strategy.md → Voice of Customer` section if available
+- Use VoC phrases as seed keywords for keyword research
+- VoC pain point language → potential TOFU/MOFU topic angles
+- VoC questions → potential FAQ or problem-solving posts
 
 **Keyword opportunities**
 - From GSC: High impressions + low position (ranks 8-20) = quick wins
@@ -263,21 +279,54 @@ For each planned post, include:
 | Priority | P1 (must publish) / P2 (should publish) / P3 (nice to have) |
 | Title idea | Working title (SEO-optimized) |
 | Target keyword | Primary SEO keyword (with volume/difficulty from D4S if available) |
+| Keyword Score | Composite score: Difficulty 40% + Volume 30% + Business Relevance 30% (see formula below) |
+| Business Potential | 0-3 score: 3=product is core solution, 2=useful, 1=indirect mention, 0=no connection |
 | Pillar | Which content pillar from strategy — or **PARALLEL** for adjacent topics |
 | Funnel stage | TOFU / MOFU / BOFU / **PARALLEL** |
-| Format | Tutorial / Listicle / Case study / Comparison / How-to / Opinion |
+| Format | Tutorial / Listicle / Case study / Comparison (→ `inblog-comparison-content`) / How-to / Opinion |
 | CTA approach | Standard (product CTA) / **Soft** (newsletter, brand only) — Parallel posts default to Soft |
+| Social repurpose | Yes / No — whether to generate social content after publishing (default: Yes for P1/P2) |
 | Rationale | Why this post now (gap, opportunity, seasonal, request) |
 | Internal links | Which existing posts to link to/from |
 | Enrichment | Internal data, case studies, product features, user-provided insights |
 | Estimated effort | Quick (1h) / Standard (2-3h) / Deep (4h+) |
 
+**Keyword Priority Scoring Formula:**
+
+For each planned post with keyword data, calculate a composite score:
+
+```
+Keyword Score = (100 - Difficulty) × 0.4 + Volume_normalized × 0.3 + BP_normalized × 0.3
+```
+
+Where:
+- `Difficulty`: Keyword difficulty 0-100 (from D4S). Higher difficulty → lower score.
+- `Volume_normalized`: Monthly search volume normalized to 0-100 scale (e.g., 10k+ = 100, 1k = 50, 100 = 10)
+- `BP_normalized`: Business Potential Score (0-3) normalized to 0-100 (0→0, 1→33, 2→67, 3→100)
+
+Display this score for each planned post. If D4S data is unavailable, estimate based on available data.
+
+**Buyer Journey Stage Mix Validation:**
+
+After generating the plan, classify each post by funnel stage and validate against benchmarks:
+
+| Stage | Recommended % | Description |
+|-------|--------------|-------------|
+| TOFU | ~40% | Awareness, educational, high-volume keywords |
+| MOFU | ~30% | Comparison, how-to, consideration content |
+| BOFU | ~15% | Case studies, demos, purchase-intent content |
+| PARALLEL | ~15% | Adjacent topics for audience growth |
+
+If the plan deviates significantly (>15pp) from these ratios, show a warning and suggest adjustments.
+
 **Ordering rules:**
 1. P1 items first, then P2, then P3
-2. Within same priority, balance across pillars
-3. Alternate funnel stages for variety — intersperse Parallel posts rather than clustering them
-4. Front-load quick wins for early momentum
-5. Parallel Tofu posts should be 15-25% of total (e.g., 1-2 out of 8)
+2. Within same priority, sort by Keyword Score (descending)
+3. Within same priority, balance across pillars
+4. Alternate funnel stages for variety — intersperse Parallel posts rather than clustering them
+5. Front-load quick wins for early momentum
+6. Parallel Tofu posts should be 15-25% of total (e.g., 1-2 out of 8)
+7. Include refresh tasks from decay analysis interspersed with new content
 
 ### Phase 4 — Save & Present
 
@@ -337,11 +386,11 @@ For each planned post, include:
 
 **Present to user as a prioritized table:**
 
-| # | Priority | Title | Keyword | Pillar | Funnel | CTA | Format | Effort |
-|---|----------|-------|---------|--------|--------|-----|--------|--------|
-| 1 | P1 | ... | ... | ... | TOFU | Standard | Tutorial | Standard |
-| 2 | P1 | ... | ... | ... | MOFU | Standard | Comparison | Deep |
-| 3 | P2 | ... | ... | PARALLEL | PARALLEL | Soft | Listicle | Quick |
+| # | Priority | Title | Keyword | Score | Pillar | Funnel | CTA | Format | Effort |
+|---|----------|-------|---------|-------|--------|--------|-----|--------|--------|
+| 1 | P1 | ... | ... | 82 | ... | TOFU | Standard | Tutorial | Standard |
+| 2 | P1 | ... | ... | 75 | ... | MOFU | Standard | Comparison | Deep |
+| 3 | P2 | ... | ... | 68 | PARALLEL | PARALLEL | Soft | Listicle | Quick |
 
 **Offer next action for each item:**
 ```
@@ -370,3 +419,7 @@ Ready to start writing? Pick a topic number and I'll draft it using the publish 
 - **inblog-write-seo-post** → plan items become pre-filled topics for writing; **Parallel posts get soft CTA treatment**
 - **analytics** → performance data informs gap analysis and prioritization
 - **search-console** → own keyword data supplements D4S market data; **outlier keywords signal parallel interest opportunities**
+- **content-refresh** → refresh candidates identified in Phase 2 are executed via this skill
+- **comparison-content** → comparison format posts use specialized comparison workflow
+- **social-repurpose** → posts with `social repurpose: Yes` get social content generated after publishing
+- **copy-editor** → can be applied to planned posts for quality improvement
