@@ -59,13 +59,40 @@ Traffic and SEO analysis workflows. Analyze top posts, keywords, traffic sources
 Complete CLI and API reference. All endpoints, fields, filters, error codes, and response formats.
 
 ### `content-quality-checklist`
-Pre-publish quality checklist: content length, image count, internal links, meta descriptions, SEO competitiveness criteria, and visual preview verification.
+Pre-publish quality checklist: content length, image count, internal links, meta descriptions, SEO competitiveness criteria, GEO Citability Score, and visual preview verification.
 
 ### `content-plan`
-Strategic content editorial planning: topic clusters, funnel mapping, content gaps, competitive differentiation, and publication cadence.
+Strategic content editorial planning: topic clusters, funnel mapping, content gaps, competitive differentiation, Parallel Tofu discovery, and publication cadence.
 
 ### `blog-strategy`
-Blog strategy definition: business purpose, target personas, content pillars, brand voice, and conversion goals.
+Blog strategy definition: business purpose, target personas, content pillars, brand voice, Voice of Customer (VoC) collection, and conversion goals.
+
+### `copy-editor`
+Seven Sweeps copy-editing method for systematic content improvement. 7 focused passes: Clarity → Voice & Tone → So What (benefits) → Prove It (evidence) → Specificity → Heightened Emotion → Zero Risk. Edit, don't rewrite.
+
+### `comparison-content`
+Specialized workflow for comparison and alternative content. 4 formats: single alternative, multiple alternatives, head-to-head, third-party comparison. Honesty-first positioning with required comparison tables.
+
+### `social-repurpose`
+Convert published blog posts into platform-specific social content. Mines content atoms (statistics, tips, quotes, frameworks) and transforms into LinkedIn posts, Twitter/X threads, and Instagram carousel text.
+
+### `geo-optimizer`
+GEO (Generative Engine Optimization) specialist. Restructures content for higher AI citation probability: answer-first paragraphs, self-contained chunks, comparison tables, front-loaded data.
+
+### `internal-linking`
+Internal link structure optimization. Audits existing links, suggests new cross-links between related posts, and ensures proper anchor text.
+
+### `content-refresh`
+Identifies and refreshes decaying content. Monitors traffic drops, outdated information, and missed keyword opportunities for existing posts.
+
+### `content-pruning`
+Evaluates underperforming content for archival or deletion. Prevents thin content from dragging down overall site quality.
+
+### `content-cannibalization`
+Detects keyword cannibalization between posts and suggests resolution: merge, differentiate, or redirect.
+
+### `schema-manager`
+Automated JSON-LD structured data generation. Detects post type (Article, HowTo, FAQ, Product) and generates appropriate schema markup.
 
 ### `autopilot`
 Autonomous blog growth agent. Assesses blog state, prioritizes highest-impact action (from setup to content creation to performance review), and executes one atomic action per invocation.
